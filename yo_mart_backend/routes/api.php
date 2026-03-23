@@ -88,6 +88,7 @@ Route::prefix('v2')->middleware(['validateToken'])->group(function () {
     Route::prefix("report")->group(function () {
         Route::get("close_day", [ReportController::class, 'closeDay']);
         Route::get("monthly_sale", [ReportController::class, 'monthlySalesReport']);
+        Route::get("day", [ReportController::class, 'orderReportToday']);
     });
     Route::get('files/{file_name}/view', [AttendFileController::class, 'index']);
     Route::get('files/{id}/view', [AttendFileController::class, 'view']);
