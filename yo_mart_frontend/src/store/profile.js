@@ -22,3 +22,5 @@ export const getProfile = () => {
     return null;
   }
 };
+
+export const getRole = () => {};

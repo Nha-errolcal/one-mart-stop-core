@@ -58,7 +58,7 @@ export const refreshToken = async () => {
       {},
       {
         headers: { Authorization: `Bearer ${getAcccessToken()}` },
-      }
+      },
     );
     const newToken = res.data.access_token;
     setAcccessToken(newToken);
@@ -69,25 +69,38 @@ export const refreshToken = async () => {
     return false;
   }
 };
-
 export const request = (url = "", method = "get", data = {}) => {
   const access_token = getAcccessToken();
+
   const headers = {
     "Content-Type":
       data instanceof FormData ? "multipart/form-data" : "application/json",
     Authorization: `Bearer ${access_token}`,
   };
-  let param_query = "?";
-  if (method === "get" && data instanceof Object) {
+
+  let queryString = "";
+
+  if (method === "get" && data && Object.keys(data).length > 0) {
+    const params = new URLSearchParams();
+
     Object.keys(data).forEach((key) => {
       if (data[key] !== "" && data[key] !== null) {
-        param_query += `&${key}=${data[key]}`;
+        params.append(key, data[key]);
       }
     });
+
+    const query = params.toString();
+    if (query) {
+      queryString = `?${query}`;
+    }
   }
 
+  const fullUrl = `${Config.base_url}${url}${queryString}`;
+
+  console.log(fullUrl);
+
   return axios({
-    url: `${Config.base_url}${url}${param_query}`,
+    url: fullUrl,
     method,
     data,
     headers,

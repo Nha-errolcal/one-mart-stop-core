@@ -4,7 +4,7 @@ import { request } from "@/store/Configstore";
 import { getProfile, removeAcccessToken, setProfile } from "@/store/profile";
 
 import { Dropdown } from "antd";
-import { ChevronDown, Menu as MenuIcon } from "lucide-react";
+import { ChevronDown, Menu as MenuIcon, UserCheck } from "lucide-react";
 
 import {
   LayoutDashboard,
@@ -53,7 +53,23 @@ const navItems = [
       { key: "/order", label: "ការបញ្ជាទិញ", icon: <ShoppingCart size={18} /> },
     ],
   },
-  { key: "/settings", label: "ការកំណត់", icon: <Settings size={20} /> },
+  {
+    key: "settings",
+    label: "ការកំណត់",
+    icon: <Settings size={20} />,
+    children: [
+      {
+        key: "/user",
+        label: "អ្នកប្រើប្រាស់",
+        icon: <Users size={18} />,
+      },
+      {
+        key: "/role",
+        label: "តួនាទី",
+        icon: <UserCheck size={18} />,
+      },
+    ],
+  },
 ];
 
 const SidebarMenu = ({ collapsed = false }) => {
@@ -220,7 +236,12 @@ const MainLayout = () => {
   const menuItems = [
     {
       key: "logout",
-      label: <span className="font-battambang text-red-500">Logout</span>,
+      label: <span className="font-battambang text-red-500">ចាកចេញ</span>,
+      onClick: handleLogout,
+    },
+    {
+      key: "role",
+      label: <span className="font-battambang"> {user?.name || "User"}</span>,
       onClick: handleLogout,
     },
   ];
@@ -293,7 +314,7 @@ const MainLayout = () => {
       <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
         <header
           style={{ backgroundColor: "#1a56db" }}
-          className="h-16 px-5 flex items-center justify-between shrink-0 shadow-lg shadow-blue-900/20"
+          className="h-16 px-5 flex items-center justify-between shrink-0 shadow-md shadow-blue-900/20"
         >
           {/* Left */}
           <div className="flex items-center gap-3">
@@ -330,11 +351,7 @@ const MainLayout = () => {
                 />
                 <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-blue-600" />
               </div>
-              <div className="hidden sm:block text-left">
-                <div className="text-sm font-semibold text-white truncate max-w-[130px]">
-                  {user?.name || "User"}
-                </div>
-              </div>
+
               <ChevronDown size={15} className="text-white/70" />
             </button>
           </Dropdown>
