@@ -12,12 +12,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+
         $middleware->alias([
             'validateToken' => \App\Http\Middleware\validateToken::class,
-            // 'permission' => \App\Http\Middleware\PermissionMiddleware::class,
-    
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
+
+        $middleware->appendToGroup('api', [
+            \App\Http\Middleware\ApiLogger::class,
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->create();

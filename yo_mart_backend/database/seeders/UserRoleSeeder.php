@@ -14,8 +14,8 @@ class UserRoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::where('email', 'test@example.com')->first();
-        $role = Role::where('code', 'ADMIN')->first();
+        $user = User::where('email', 'panhadev123@gmail.com')->first();
+        $role = Role::where('code', 'YM-001')->first();
 
         if ($user && $role) {
             $user->roles()->sync([$role->id]);

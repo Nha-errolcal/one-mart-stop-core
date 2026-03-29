@@ -14,13 +14,24 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 
-Route::prefix('v2')->middleware(['validateToken'])->group(function () {
-    // Authenticated routes
-    Route::post('/profile', [AuthController::class, 'profile']);
-    Route::get('/user', [AuthController::class, 'getUserAll']);
-    Route::post('/refresh', [AuthController::class, 'refresh']);
+//no need permission for profile just need to be authenticated
+Route::prefix('v2')->middleware('validateToken')->group(function () {
+    Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+Route::prefix('v2')->middleware(['validateToken', 'role:super-admin,super_admin,cashier'])->group(function () {
+    // Authenticated routes
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+
+    // user routes
+    Route::prefix('users')->group(function () {
+        Route::get('/get_all_user', [UserController::class, 'index']);
+        Route::get('/view_only/{id}', [UserController::class, 'viewOnly']);
+        Route::put('/update_user/{id}', [UserController::class, 'updateUser']);
+        Route::delete('/delete_user/{id}', [UserController::class, 'deleteUser']);
+    });
 
     Route::get('/employees', [EmployeesController::class, 'index']);
     Route::post('/employees', [EmployeesController::class, 'store']);
@@ -46,11 +57,20 @@ Route::prefix('v2')->middleware(['validateToken'])->group(function () {
     Route::put('/customer/{customer}', [CustomerController::class, 'update']);
     Route::delete('/customer/{customer}', [CustomerController::class, 'destroy']);
 
-    Route::get('/role', [RoleController::class, 'index']);
-    Route::post('/role', [RoleController::class, 'store']);
-    Route::get('/role/{role}', [RoleController::class, 'show']);
-    Route::put('/role/{role}', [RoleController::class, 'update']);
-    Route::delete('/role/{role}', [RoleController::class, 'destroy']);
+    // ----- Role and permissions -----
+    Route::prefix('role')->group(function () {
+        Route::get('/', [RoleController::class, 'index']);
+        Route::post('/', [RoleController::class, 'store']);
+        Route::get('/{role}', [RoleController::class, 'show']);
+        Route::put('/{role}', [RoleController::class, 'update']);
+        Route::delete('/{role}', [RoleController::class, 'destroy']);
+
+        // permissions for role
+        Route::post('/{roleId}/sync-permissions', [RoleController::class, 'syncPermissions']);
+        Route::post('/{roleId}/permissions/add', [RoleController::class, 'addPermissions']);
+        Route::put('/{roleId}/permissions/update', [RoleController::class, 'updatePermissions']);
+        Route::delete('/{roleId}/permissions/delete', [RoleController::class, 'deletePermissions']);
+    });
 
     Route::get('/payments', [PaymentMethodController::class, 'index']);
     Route::post('/payments', [PaymentMethodController::class, 'store']);
@@ -82,13 +102,13 @@ Route::prefix('v2')->middleware(['validateToken'])->group(function () {
     Route::put('/permission/{permission}', [PermissionController::class, 'update']);
     Route::delete('/permission/{permission}', [PermissionController::class, 'destroy']);
 
-    Route::post('/role/{roleId}/sync-permissions', [RoleController::class, 'syncPermissions']);
+
     Route::post('/users/{userId}/sync-roles', [AuthController::class, 'syncRoles']);
 
     Route::prefix("report")->group(function () {
-        Route::get("close_day", [ReportController::class, 'closeDay']);
-        Route::get("monthly_sale", [ReportController::class, 'monthlySalesReport']);
-        Route::get("day", [ReportController::class, 'orderReportToday']);
+        Route::get("close-day", [ReportController::class, 'closeDay']);
+        Route::get("monthly-sales-report", [ReportController::class, 'monthlySalesReport']);
+        Route::get("order-report-today", [ReportController::class, 'orderReportToday']);
     });
     Route::get('files/{file_name}/view', [AttendFileController::class, 'index']);
     Route::get('files/{id}/view', [AttendFileController::class, 'view']);

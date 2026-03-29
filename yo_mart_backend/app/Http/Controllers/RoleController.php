@@ -13,21 +13,20 @@ class RoleController extends Controller
     public function index()
     {
         try {
-            $getAll = Role::all();
+            $roles = Role::with('permissions')->get();
 
             return response()->json([
-                'getAll' => $getAll
+                'success' => true,
+                'data' => flattenRolesActions($roles)
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+
             return response()->json([
-                'message' => 'Failed to retrieve customers.',
-                Log::error('Failed to retrieve roles: ' . $e->getMessage(), [
-                    'exception' => $e
-                ])
+                'success' => false,
+                'message' => 'Failed to retrieve roles.'
             ], 500);
         }
     }
-
     public function store(RoleResuest $roleRequest)
     {
         try {
@@ -160,21 +159,162 @@ class RoleController extends Controller
     }
 
 
-    public function syncPermissions(Request $request, $roleId)
+    public function addPermissions(Request $request, $roleId)
     {
         $data = $request->validate([
-            'permission_ids' => 'required|array',
-            'permission_ids.*' => 'integer|exists:permissions,id',
+            'permissions' => 'required|array',
+            'permissions.*.permission_id' => 'required|integer|exists:permissions,id',
+            'permissions.*.action' => 'required|string',
+            'permissions.*.allowed' => 'required|boolean',
         ]);
 
         $role = Role::findOrFail($roleId);
-        $role->permissions()->sync($data['permission_ids']);
+
+        foreach ($data['permissions'] as $perm) {
+            $existing = $role->permissions()
+                ->where('permission_id', $perm['permission_id'])
+                ->wherePivot('action', $perm['action'])
+                ->first();
+
+            if ($existing) {
+                $role->permissions()->updateExistingPivot($perm['permission_id'], [
+                    'allowed' => $perm['allowed'],
+                    'action' => $perm['action'],
+                    'updated_at' => now(),
+                ]);
+            } else {
+                $role->permissions()->attach($perm['permission_id'], [
+                    'allowed' => $perm['allowed'],
+                    'action' => $perm['action'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
 
         return response()->json([
-            'message' => 'Permissions assigned to role',
+            'message' => 'Permissions added/updated successfully (add-only)',
             'data' => $role->load('permissions')
         ]);
     }
 
 
+    public function updatePermissions(Request $request, $roleId)
+    {
+        $data = $request->validate([
+            'permissions' => 'required|array',
+            'permissions.*.permission_id' => 'required|integer|exists:permissions,id',
+            'permissions.*.action' => 'required|string',
+            'permissions.*.allowed' => 'required|boolean',
+        ]);
+
+        $role = Role::findOrFail($roleId);
+
+        // Step 1: Remove all existing permissions for this role
+        $role->permissions()->detach();
+
+        // Step 2: Attach new permissions
+        $attachData = [];
+        foreach ($data['permissions'] as $perm) {
+            $attachData[$perm['permission_id'] . '_' . $perm['action']] = [
+                'action' => $perm['action'],
+                'allowed' => $perm['allowed'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        foreach ($attachData as $key => $pivot) {
+            $role->permissions()->attach($pivot['permission_id'] ?? explode('_', $key)[0], $pivot);
+        }
+
+        return response()->json([
+            'message' => 'Permissions updated successfully (all replaced)',
+            'data' => $role->load('permissions')
+        ]);
+    }
+
+    public function deletePermissions(Request $request, $roleId)
+    {
+        $data = $request->validate([
+            'permissions' => 'required|array',
+            'permissions.*.permission_id' => 'required|integer|exists:permissions,id',
+            'permissions.*.action' => 'required|string',
+        ]);
+
+        $role = Role::findOrFail($roleId);
+
+        foreach ($data['permissions'] as $perm) {
+            $role->permissions()->detach($perm['permission_id'], ['action' => $perm['action']]);
+        }
+
+        return response()->json([
+            'message' => 'Selected permissions removed successfully',
+            'data' => $role->load('permissions')
+        ]);
+    }
+    public function syncPermissions(Request $request, $roleId)
+    {
+        $data = $request->validate([
+            'permissions' => 'required|array',
+            'permissions.*.permission_id' => 'required|integer|exists:permissions,id',
+            'permissions.*.action' => 'required|string',
+            'permissions.*.allowed' => 'required|boolean',
+        ]);
+
+        $role = Role::findOrFail($roleId);
+
+        // Step 1: Prepare new pivot data
+        $syncData = [];
+        foreach ($data['permissions'] as $perm) {
+            $syncData[$perm['permission_id']][] = [
+                'action' => $perm['action'],
+                'allowed' => $perm['allowed'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        // Step 2: Remove old actions not included in request
+        $existing = $role->permissions()->get();
+        foreach ($existing as $permission) {
+            foreach ($permission->pivot->action ? [$permission->pivot->action] : [] as $action) {
+                $found = false;
+                if (isset($syncData[$permission->id])) {
+                    foreach ($syncData[$permission->id] as $newPivot) {
+                        if ($newPivot['action'] === $action) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!$found) {
+                    $role->permissions()
+                        ->wherePivot('action', $action)
+                        ->detach($permission->id);
+                }
+            }
+        }
+
+        // Step 3: Add or update all provided actions
+        foreach ($syncData as $permissionId => $actions) {
+            foreach ($actions as $pivotData) {
+                $existing = $role->permissions()
+                    ->where('permission_id', $permissionId)
+                    ->wherePivot('action', $pivotData['action'])
+                    ->first();
+
+                if ($existing) {
+                    $role->permissions()->updateExistingPivot($permissionId, $pivotData);
+                } else {
+                    $role->permissions()->attach($permissionId, $pivotData);
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => 'Permissions synced successfully (add-update-remove)',
+            'data' => $role->load('permissions')
+        ]);
+    }
 }

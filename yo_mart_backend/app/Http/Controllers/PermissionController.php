@@ -68,4 +68,5 @@ class PermissionController extends Controller
         $permission->delete();
         return response()->json(['message' => 'Permission deleted successfully.'], 200);
     }
+
 }

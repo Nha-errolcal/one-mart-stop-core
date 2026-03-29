@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 class Permission extends Model
 {
     protected $fillable = [
-        "name",
-        "code",
-        "web_route"
+        'name',
+        'code',
+        'web_route',
     ];
 
-    public function role()
+    public function roles()
     {
-        return $this->belongsToMany(Role::class, 'permission_role', 'permission_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'permission_role', 'permission_id', 'role_id')
+            ->withPivot('action', 'allowed');
     }
 }

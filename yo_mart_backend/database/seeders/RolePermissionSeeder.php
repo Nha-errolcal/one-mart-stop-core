@@ -14,7 +14,7 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        $role = Role::where('code', 'ADMIN')->first();
+        $role = Role::where('code', 'Super Admin')->first();
 
         if (!$role)
             return;
