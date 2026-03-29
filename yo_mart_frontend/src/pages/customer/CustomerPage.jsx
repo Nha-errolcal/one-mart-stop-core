@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import MainPage from "@/layouts/auth/MainPage";
-import {Button, Form, Input, message, Modal, Space, Table, Tooltip} from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Space,
+  Table,
+  Tooltip,
+} from "antd";
 import { formatDate, request } from "@/store/Configstore";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { useForm } from "antd/es/form/Form";
 import { Eye } from "lucide-react";
-import {IoEyeSharp} from "react-icons/io5";
+import { IoEyeSharp } from "react-icons/io5";
 
 const CustomerPage = () => {
   const [state, setState] = useState({
@@ -127,7 +136,6 @@ const CustomerPage = () => {
   return (
     <MainPage loading={state.loading}>
       <div className="flex bg-white p-3 rounded-md flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
-
         {/* Left Side */}
         <div>
           <h1 className="text-2xl font-semibold text-slate-900 font-battambang">
@@ -140,10 +148,10 @@ const CustomerPage = () => {
 
         {/* Right Side */}
         <Button
-            type="primary"
-            size="large"
-            onClick={handleAdd}
-            className="font-battambang shadow-sm"
+          type="primary"
+          size="large"
+          onClick={handleAdd}
+          className="font-battambang shadow-sm"
         >
           + បង្កើតអតិថិជនថ្មី
         </Button>
@@ -157,126 +165,123 @@ const CustomerPage = () => {
         title={state.currentCategory ? "កែប្រែអតិថិជន" : "បង្កើតអតិថិជនថ្មី"}
       >
         <Form onFinish={onFinish} form={form} layout="vertical">
-
           <Form.Item
-              className="font-battambang"
-              name="name"
-              label="ឈ្មោះអតិថិជន"
-              rules={[
-                { required: true, message: "សូមបញ្ចូលឈ្មោះអតិថិជន" }
-              ]}
+            className="font-battambang"
+            name="name"
+            label="ឈ្មោះអតិថិជន"
+            rules={[{ required: true, message: "សូមបញ្ចូលឈ្មោះអតិថិជន" }]}
           >
             <Input placeholder="បញ្ចូលឈ្មោះអតិថិជន" size="large" />
           </Form.Item>
 
           <Form.Item
-              className="font-battambang"
-              name="tel"
-              label="លេខទូរស័ព្ទ"
-              rules={[
-                { required: true, message: "សូមបញ្ចូលលេខទូរស័ព្ទ" }
-              ]}
+            className="font-battambang"
+            name="tel"
+            label="លេខទូរស័ព្ទ"
+            rules={[{ required: true, message: "សូមបញ្ចូលលេខទូរស័ព្ទ" }]}
           >
             <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" size="large" />
           </Form.Item>
 
           <Form.Item
-              className="font-battambang"
-              name="email"
-              label="អ៊ីមែល"
-              rules={[
-                { required: true, message: "សូមបញ្ចូលអ៊ីមែល" },
-                { type: "email", message: "ទម្រង់អ៊ីមែលមិនត្រឹមត្រូវ" }
-              ]}
+            className="font-battambang"
+            name="email"
+            label="អ៊ីមែល"
+            rules={[
+              { required: true, message: "សូមបញ្ចូលអ៊ីមែល" },
+              { type: "email", message: "ទម្រង់អ៊ីមែលមិនត្រឹមត្រូវ" },
+            ]}
           >
             <Input placeholder="បញ្ចូលអ៊ីមែល" size="large" />
           </Form.Item>
 
           <Form.Item
-              className="font-battambang"
-              name="address"
-              label="អាសយដ្ឋាន"
-              rules={[
-                { required: true, message: "សូមបញ្ចូលអាសយដ្ឋាន" }
-              ]}
+            className="font-battambang"
+            name="address"
+            label="អាសយដ្ឋាន"
+            rules={[{ required: true, message: "សូមបញ្ចូលអាសយដ្ឋាន" }]}
           >
             <Input placeholder="បញ្ចូលអាសយដ្ឋាន" size="large" />
           </Form.Item>
-
         </Form>
       </Modal>
 
       {/* Table for displaying customers */}
       <div className={"bg-white p-3 rounded-md flex-col gap-3"}>
         <Table
-            size={"small"}
-            bordered={true}
-            dataSource={state.list}
-            columns={[
-              {
-                key: "name",
-                dataIndex: "name",
-                title: "ឈ្មោះអតិថិជន",
-              },
-              {
-                key: "tel",
-                dataIndex: "tel",
-                title: "លេខទូរស័ព្ទ",
-              },
-              {
-                key: "email",
-                dataIndex: "email",
-                title: "អ៊ីមែល",
-              },
-              {
-                key: "address",
-                dataIndex: "address",
-                title: "អាសយដ្ឋាន",
-              },
-              {
-                key: "created_at",
-                dataIndex: "created_at",
-                title: "កាលបរិច្ឆេទបង្កើត",
-                render: (value) => formatDate(value),
-              },
-              {
-                title: "សកម្មភាព",
-                key: "action",
-                render: (item) => (
-                    <Space size={6}>
-                      {/* View */}
-                      <Tooltip title="មើលព័ត៌មាន">
-                        <Button
-                            size="small"
-                            icon={<IoEyeSharp  size={15} />}
-                            onClick={() => handleEdit(item)}
-                            className="!bg-green-500 hover:!bg-green-600 !text-white !border-green-500 rounded-md"
-                        />
-                      </Tooltip>
+          size={"small"}
+          bordered={true}
+          dataSource={state.list}
+          columns={[
+            {
+              key: "name",
+              dataIndex: "name",
+              title: "ឈ្មោះអតិថិជន",
+              sorter: (a, b) => a.name?.localeCompare(b.name),
+            },
+            {
+              key: "tel",
+              dataIndex: "tel",
+              title: "លេខទូរស័ព្ទ",
+              sorter: (a, b) => a.tel?.localeCompare(b.tel),
+            },
+            {
+              key: "email",
+              dataIndex: "email",
+              title: "អ៊ីមែល",
+              sorter: (a, b) => a.email?.localeCompare(b.email),
+            },
+            {
+              key: "address",
+              dataIndex: "address",
+              title: "អាសយដ្ឋាន",
+              sorter: (a, b) => a.address?.localeCompare(b.address),
+            },
+            {
+              key: "created_at",
+              dataIndex: "created_at",
+              title: "កាលបរិច្ឆេទបង្កើត",
+              render: (value) => formatDate(value),
+              sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
+            },
+            {
+              title: "សកម្មភាព",
+              key: "action",
+              render: (item) => (
+                <Space size={6}>
+                  {/* View */}
+                  <Tooltip title="មើលព័ត៌មាន">
+                    <Button
+                      size="small"
+                      icon={<IoEyeSharp size={15} />}
+                      onClick={() => handleEdit(item)}
+                      className="!bg-green-500 hover:!bg-green-600 !text-white !border-green-500 rounded-md"
+                    />
+                  </Tooltip>
 
-                      {/* Edit */}
-                      <Tooltip title="កែប្រែ">
-                        <Button
-                            size="small"
-                            icon={<MdEdit size={15} />}
-                            onClick={() => handleEdit(item)}
-                            className="!bg-blue-500 hover:!bg-blue-600 !text-white !border-blue-500 rounded-md"
-                        />
-                      </Tooltip>
+                  {/* Edit */}
+                  <Tooltip title="កែប្រែ">
+                    <Button
+                      size="small"
+                      icon={<MdEdit size={15} />}
+                      onClick={() => handleEdit(item)}
+                      className="!bg-blue-500 hover:!bg-blue-600 !text-white !border-blue-500 rounded-md"
+                    />
+                  </Tooltip>
 
-                      {/* Delete */}
-                      <Tooltip title="លុប">
-                        <Button
-                            size="small"
-                            icon={<MdDelete size={15} />}
-                            onClick={() => handleDelete(item.id)}
-                            className="!bg-red-500 hover:!bg-red-600 !text-white !border-red-500 rounded-md"
-                        />
-                      </Tooltip>
-                    </Space>
-                ),
-              },
-            ]}
+                  {/* Delete */}
+                  <Tooltip title="លុប">
+                    <Button
+                      size="small"
+                      icon={<MdDelete size={15} />}
+                      onClick={() => handleDelete(item.id)}
+                      className="!bg-red-500 hover:!bg-red-600 !text-white !border-red-500 rounded-md"
+                    />
+                  </Tooltip>
+                </Space>
+              ),
+            },
+          ]}
         />
       </div>
     </MainPage>

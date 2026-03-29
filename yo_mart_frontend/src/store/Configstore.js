@@ -97,8 +97,6 @@ export const request = (url = "", method = "get", data = {}) => {
 
   const fullUrl = `${Config.base_url}${url}${queryString}`;
 
-  console.log(fullUrl);
-
   return axios({
     url: fullUrl,
     method,

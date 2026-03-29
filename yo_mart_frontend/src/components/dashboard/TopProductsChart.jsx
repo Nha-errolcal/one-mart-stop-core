@@ -13,7 +13,7 @@ const TopProductsChart = ({ data }) => {
   return (
     <div>
       <h3 className="mb-4 font-semibold text-gray-700 flex items-center gap-3">
-        <span className=" bg-yellow-50 text-yellow-500 rounded-lg">
+        <span className="bg-yellow-50 text-yellow-500 rounded-lg p-1">
           <FaTrophy />
         </span>
         ផលិតផលលក់ដាច់បំផុត
@@ -26,8 +26,9 @@ const TopProductsChart = ({ data }) => {
 
           <Tooltip
             formatter={(value, name) => {
-              if (name === "sold") return [`${value}`, "ចំនួនលក់"];
-              if (name === "revenue") return [`$${value}`, "ចំណូល"];
+              if (name === "sold") return [value.toLocaleString(), "ចំនួនលក់"];
+              if (name === "revenue")
+                return [`$${value.toLocaleString()}`, "ចំណូល"];
               return value;
             }}
           />

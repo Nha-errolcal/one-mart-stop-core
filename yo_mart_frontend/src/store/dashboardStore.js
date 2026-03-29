@@ -6,21 +6,34 @@ const useDashboard = create((set, get) => ({
   monthlySales: [],
   todaySale: null,
 
-  getMonthlySales: async () => {
+  getMonthlySales: async (year, userId) => {
     try {
       const { endpoint } = get();
-      const res = await request(`${endpoint}monthly_sale`);
-      set({ monthlySales: res || [] });
+
+      const query = new URLSearchParams();
+      if (year) query.append("year", year);
+      if (userId) query.append("user_id", userId);
+
+      const res = await request(
+        `${endpoint}monthly-sales-report?${query.toString()}`,
+      );
+      if (res.status === 200) {
+        set({ monthlySales: res.data || [] });
+      }
     } catch (error) {
       console.error("Error fetching monthly sales:", error);
       set({ monthlySales: [] });
     }
   },
 
-  getTodaySales: async () => {
+  getTodaySales: async (userId) => {
     try {
       const { endpoint } = get();
-      const res = await request(`${endpoint}day`);
+
+      const query = userId ? `?user_id=${userId}` : "";
+
+      const res = await request(`${endpoint}order-report-today${query}`);
+
       set({ todaySale: res || null });
     } catch (error) {
       console.error("Error fetching today sales:", error);

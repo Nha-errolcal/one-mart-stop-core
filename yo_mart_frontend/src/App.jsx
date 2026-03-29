@@ -12,6 +12,9 @@ import CategoryPage from "./pages/category/CategoryPage";
 import MainLayoutPOS from "@/layouts/POS/MainLayoutPOS";
 import OrderPage from "./pages/order/OrderPage";
 import CustomerScreen from "./components/POS/CustomerScreen";
+import UserPage from "./pages/auth/UserPage";
+import AboutSystem from "./pages/about/AboutSystem";
+import AboutTeam from "./pages/about/AboutTeam";
 function App() {
   return (
     <BrowserRouter>
@@ -23,7 +26,9 @@ function App() {
           <Route path="/product_detail" element={<ProductPage />} />
           <Route path="/category" element={<CategoryPage />} />
           <Route path="/order" element={<OrderPage />} />
-
+          <Route path="/user" element={<UserPage />} />
+          <Route path="/about/system" element={<AboutSystem />} />
+          <Route path="/about/team" element={<AboutTeam />} />
           <Route path="*" element={<h1>404-Route Not Found!</h1>} />
         </Route>
         <Route element={<MainLayoutPOS />}>

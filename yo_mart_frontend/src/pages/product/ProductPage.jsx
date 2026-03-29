@@ -376,26 +376,31 @@ const ProductPage = () => {
               key: "name",
               dataIndex: "name",
               title: <span className="font-battambang">ឈ្មោះផលិតផល</span>,
+              sorter: (a, b) => a.name?.localeCompare(b.name),
             },
             {
               key: "category_name",
               dataIndex: "category_name",
               title: <span className="font-battambang">ប្រភេទ</span>,
+              sorter: (a, b) => a.category_name?.localeCompare(b.category_name),
             },
             {
               key: "qty",
               dataIndex: "qty",
               title: <span className="font-battambang">បរិមាណ</span>,
+              sorter: (a, b) => a.qty - b.qty,
             },
             {
               key: "product_in",
               dataIndex: "product_in",
               title: <span className="font-battambang">ចូល</span>,
+              sorter: (a, b) => a.product_in - b.product_in,
             },
             {
               key: "product_out",
               dataIndex: "product_out",
               title: <span className="font-battambang">ចេញ</span>,
+              sorter: (a, b) => a.product_out - b.product_out,
             },
             {
               key: "image",
@@ -425,22 +430,27 @@ const ProductPage = () => {
               render: (value) => (
                 <p className="w-40 font-battambang text-xs truncate">{value}</p>
               ),
+              sorter: (a, b) =>
+                (a.description || "").localeCompare(b.description || ""),
             },
             {
               key: "discount",
               dataIndex: "discount",
               title: <span className="font-battambang">បញ្ចុះតម្លៃ</span>,
+              sorter: (a, b) => a.discount - b.discount,
             },
             {
               key: "create_by",
               dataIndex: "create_by",
               title: <span className="font-battambang">បង្កើតដោយ</span>,
+              sorter: (a, b) => a.create_by?.localeCompare(b.create_by),
             },
             {
               key: "created_at",
               dataIndex: "created_at",
               title: <span className="font-battambang">កាលបរិច្ឆេទ</span>,
               render: (value) => formatDate(value),
+              sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             },
             {
               title: <span className="font-battambang">សកម្មភាព</span>,

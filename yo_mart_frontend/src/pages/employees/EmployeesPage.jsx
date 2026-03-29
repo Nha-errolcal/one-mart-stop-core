@@ -257,6 +257,7 @@ const EmployeesPage = () => {
               title: <span className="font-battambang">ឈ្មោះ</span>,
               key: "name",
               dataIndex: "name",
+              sorter: (a, b) => a.name?.localeCompare(b.name),
             },
             {
               title: (
@@ -265,22 +266,27 @@ const EmployeesPage = () => {
               key: "employment_date",
               dataIndex: "employment_date",
               render: (value) => formatDate(value),
+              sorter: (a, b) =>
+                new Date(a.employment_date) - new Date(b.employment_date),
             },
             {
               title: <span className="font-battambang">ប្រាក់ខែ</span>,
               key: "salary",
               dataIndex: "salary",
+              sorter: (a, b) => a.salary - b.salary,
             },
             {
               title: <span className="font-battambang">បន្ថែម</span>,
               key: "bonus",
               dataIndex: "bonus",
+              sorter: (a, b) => a.bonus - b.bonus,
             },
             {
               title: <span className="font-battambang">ថ្ងៃខែឆ្នាំកំណើត</span>,
               key: "dob",
               dataIndex: "dob",
               render: (value) => formatDate(value),
+              sorter: (a, b) => new Date(a.dob) - new Date(b.dob),
             },
             {
               title: <span className="font-battambang">ភេទ</span>,
@@ -291,17 +297,20 @@ const EmployeesPage = () => {
                   {value ? "ប្រុស" : "ស្រី"}
                 </span>
               ),
+              sorter: (a, b) => a.gender - b.gender,
             },
             {
               title: <span className="font-battambang">បង្កើតដោយ</span>,
               key: "create_by",
               dataIndex: "create_by",
+              sorter: (a, b) => a.create_by?.localeCompare(b.create_by),
             },
             {
               title: <span className="font-battambang">កាលបរិច្ឆេទបង្កើត</span>,
               key: "created_at",
               dataIndex: "created_at",
               render: (value) => formatDate(value),
+              sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             },
             {
               title: <span className="font-battambang">សកម្មភាព</span>,

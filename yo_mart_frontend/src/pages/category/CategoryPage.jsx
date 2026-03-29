@@ -9,6 +9,7 @@ import {
   Select,
   Space,
   Table,
+  Tag,
   Tooltip,
 } from "antd";
 import { formatDate, request } from "@/store/Configstore";
@@ -199,6 +200,7 @@ const CategoryPage = () => {
               key: "name",
               dataIndex: "name",
               title: <span className="font-battambang">ឈ្មោះប្រភេទ</span>,
+              sorter: (a, b) => a.name?.localeCompare(b.name),
             },
             {
               key: "description",
@@ -207,11 +209,14 @@ const CategoryPage = () => {
               render: (value) => (
                 <p className="w-64 font-battambang text-sm">{value}</p>
               ),
+              sorter: (a, b) =>
+                (a.description || "").localeCompare(b.description || ""),
             },
             {
               key: "create_by",
               dataIndex: "create_by",
               title: <span className="font-battambang">បង្កើតដោយ</span>,
+              sorter: (a, b) => a.create_by?.localeCompare(b.create_by),
             },
             {
               key: "status",
@@ -219,23 +224,29 @@ const CategoryPage = () => {
               title: <span className="font-battambang">ស្ថានភាព</span>,
               render: (status) =>
                 status === 1 ? (
-                  <span className="font-battambang text-green-600 font-semibold">
+                  <Tag color="green" className="font-battambang">
                     សកម្ម
-                  </span>
+                  </Tag>
                 ) : (
-                  <span className="font-battambang text-red-500 font-semibold">
+                  <Tag color="red" className="font-battambang">
                     អសកម្ម
-                  </span>
+                  </Tag>
                 ),
+              sorter: (a, b) => a.status - b.status,
             },
             {
               key: "created_at",
               dataIndex: "created_at",
               title: <span className="font-battambang">កាលបរិច្ឆេទបង្កើត</span>,
               render: (value) => formatDate(value),
+              sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             },
             {
-              title: <span className="font-battambang">សកម្មភាព</span>,
+              title: (
+                <p color="geekblue" className="font-battambang">
+                  សកម្មភាព
+                </p>
+              ),
               key: "action",
               render: (item) => (
                 <Space size={6}>
@@ -247,6 +258,7 @@ const CategoryPage = () => {
                       className="!bg-green-500 hover:!bg-green-600 !text-white !border-green-500 rounded-md"
                     />
                   </Tooltip>
+
                   <Tooltip title="កែប្រែ">
                     <Button
                       size="small"
@@ -255,6 +267,7 @@ const CategoryPage = () => {
                       className="!bg-blue-500 hover:!bg-blue-600 !text-white !border-blue-500 rounded-md"
                     />
                   </Tooltip>
+
                   <Tooltip title="លុប">
                     <Button
                       size="small"

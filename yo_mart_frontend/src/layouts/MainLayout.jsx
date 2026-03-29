@@ -4,7 +4,7 @@ import { request } from "@/store/Configstore";
 import { getProfile, removeAcccessToken, setProfile } from "@/store/profile";
 
 import { Dropdown } from "antd";
-import { ChevronDown, Menu as MenuIcon, UserCheck } from "lucide-react";
+import { ChevronDown, Info, Menu as MenuIcon, UserCheck } from "lucide-react";
 
 import {
   LayoutDashboard,
@@ -49,7 +49,12 @@ const navItems = [
     label: "ការលក់",
     icon: <ShoppingCart size={20} />,
     children: [
-      { key: "/pos", label: "POS លក់", icon: <Store size={18} /> },
+      {
+        key: "/pos",
+        label: "POS លក់",
+        icon: <Store size={18} />,
+        newTab: true,
+      },
       { key: "/order", label: "ការបញ្ជាទិញ", icon: <ShoppingCart size={18} /> },
     ],
   },
@@ -70,6 +75,16 @@ const navItems = [
       },
     ],
   },
+  {
+    key: "about/system",
+    label: "អំពីប្រព័ន្ធ",
+    icon: <Info size={20} />,
+  },
+  {
+    key: "about/team",
+    label: "អំពីក្រុម",
+    icon: <Users size={20} />,
+  },
 ];
 
 const SidebarMenu = ({ collapsed = false }) => {
@@ -79,13 +94,16 @@ const SidebarMenu = ({ collapsed = false }) => {
   useEffect(() => {
     const next = {};
     navItems.forEach((g) => {
-      if (g.children?.some((c) => c.key === pathname)) next[g.key] = true;
+      if (g.children?.some((c) => c.key === pathname)) {
+        next[g.key] = true;
+      }
     });
     setOpenGroup((prev) => ({ ...prev, ...next }));
   }, [pathname]);
 
-  const toggleGroup = (key) =>
+  const toggleGroup = (key) => {
     setOpenGroup((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <ul className="space-y-0.5 font-battambang px-2">
@@ -98,18 +116,15 @@ const SidebarMenu = ({ collapsed = false }) => {
                 end={item.key === "/"}
                 className={({ isActive }) =>
                   [
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+                    "flex items-center text-sm gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                     isActive
                       ? "bg-blue-500 text-white font-semibold shadow-md"
                       : "text-slate-300 hover:bg-white/10 hover:text-white",
                   ].join(" ")
                 }
-                title={collapsed ? item.label : undefined}
               >
-                <span className="shrink-0">{item.icon}</span>
-                {!collapsed && (
-                  <span className="text-[15px] truncate">{item.label}</span>
-                )}
+                <span>{item.icon}</span>
+                {!collapsed && <span>{item.label}</span>}
               </NavLink>
             </li>
           );
@@ -120,54 +135,63 @@ const SidebarMenu = ({ collapsed = false }) => {
 
         return (
           <li key={item.key}>
+            {/* Group button */}
             <button
               onClick={() => toggleGroup(item.key)}
               className={[
-                "w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200",
+                "w-full flex items-center  text-sm justify-between px-3 py-2.5 rounded-lg transition-all duration-200",
                 isAnyActive
-                  ? "bg-white/10 text-white font-semibold"
-                  : "text-slate-300 hover:bg-white/10 hover:text-white",
+                  ? "bg-white/10  text-sm text-white font-semibold"
+                  : "text-slate-300  text-sm hover:bg-white/10 hover:text-white",
               ].join(" ")}
-              title={collapsed ? item.label : undefined}
               type="button"
             >
               <div className="flex items-center gap-3">
-                <span className="shrink-0">{item.icon}</span>
-                {!collapsed && (
-                  <span className="text-[15px] truncate">{item.label}</span>
-                )}
+                <span>{item.icon}</span>
+                {!collapsed && <span>{item.label}</span>}
               </div>
+
               {!collapsed && (
                 <ChevronDown
                   size={15}
-                  className={[
-                    "transition-transform duration-200 shrink-0",
-                    isOpen ? "rotate-180" : "",
-                  ].join(" ")}
+                  className={`transition-transform ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
                 />
               )}
             </button>
 
+            {/* Children */}
             {!collapsed && isOpen && (
               <ul className="mt-1 ml-4 space-y-0.5 border-l-2 border-white/10 pl-3">
                 {item.children.map((child) => (
                   <li key={child.key}>
-                    <NavLink
-                      to={child.key}
-                      className={({ isActive }) =>
-                        [
-                          "flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-200",
-                          isActive
-                            ? "bg-blue-500 text-white font-semibold shadow-md"
-                            : "text-slate-400 hover:bg-white/10 hover:text-white",
-                        ].join(" ")
-                      }
-                    >
-                      <span className="shrink-0">{child.icon}</span>
-                      <span className="text-[14px] truncate">
-                        {child.label}
-                      </span>
-                    </NavLink>
+                    {child.newTab ? (
+                      <a
+                        href={child.key}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3  text-sm rounded-lg px-3 py-2 text-slate-400 hover:bg-white/10 hover:text-white transition-all duration-200"
+                      >
+                        <span>{child.icon}</span>
+                        <span>{child.label}</span>
+                      </a>
+                    ) : (
+                      <NavLink
+                        to={child.key}
+                        className={({ isActive }) =>
+                          [
+                            "flex items-center gap-3 rounded-lg px-3  text-sm py-2 transition-all duration-200",
+                            isActive
+                              ? "bg-blue-500 text-white font-semibold shadow-md"
+                              : "text-slate-400 hover:bg-white/10 hover:text-white",
+                          ].join(" ")
+                        }
+                      >
+                        <span>{child.icon}</span>
+                        <span>{child.label}</span>
+                      </NavLink>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -183,6 +207,7 @@ const MainLayout = () => {
   const [currentTime, setCurrentTime] = useState("");
   const [collapsed, setCollapsed] = useState(false);
   const user = getProfile();
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -235,14 +260,34 @@ const MainLayout = () => {
 
   const menuItems = [
     {
-      key: "logout",
-      label: <span className="font-battambang text-red-500">ចាកចេញ</span>,
-      onClick: handleLogout,
+      key: "role",
+      label: (
+        <div className="flex flex-col items-start p-4 transition-colors duration-200 rounded-t-xl hover:bg-gray-100">
+          <h1 className="font-battambang font-semibold text-gray-800">
+            Name: {user?.name || "User"}
+          </h1>
+          <p className="text-sm text-gray-500">
+            Role: {user?.roles[0]?.name || "Role"}
+          </p>
+        </div>
+      ),
     },
     {
-      key: "role",
-      label: <span className="font-battambang"> {user?.name || "User"}</span>,
-      onClick: handleLogout,
+      key: "divider",
+      label: <div className="border-t border-gray-200 my-1"></div>,
+    },
+    {
+      key: "logout",
+      label: (
+        <div
+          className="flex items-center p-4 transition-colors duration-200 rounded-b-xl hover:bg-red-100 cursor-pointer"
+          onClick={handleLogout}
+        >
+          <span className="font-battambang text-red-500 font-medium">
+            ចាកចេញ
+          </span>
+        </div>
+      ),
     },
   ];
 
@@ -284,7 +329,7 @@ const MainLayout = () => {
         </nav>
 
         {/* Footer */}
-        <div
+        {/* <div
           style={{ backgroundColor: "#161b27" }}
           className="p-3 border-t border-white/5 shrink-0"
         >
@@ -307,7 +352,7 @@ const MainLayout = () => {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
       </aside>
 
       {/* ── Main ── */}

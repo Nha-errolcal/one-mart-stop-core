@@ -148,31 +148,41 @@ const OrderPage = () => {
               key: "customer_name",
               dataIndex: "customer_name",
               title: <span className="font-battambang">អតិថិជន</span>,
+              sorter: (a, b) =>
+                (a.customer_name || "").localeCompare(b.customer_name || ""),
             },
             {
               key: "user_name",
               dataIndex: "user_name",
               title: <span className="font-battambang">អ្នកលក់</span>,
+              sorter: (a, b) =>
+                (a.user_name || "").localeCompare(b.user_name || ""),
             },
             {
               key: "order_num",
               dataIndex: "order_num",
               title: <span className="font-battambang">លេខបញ្ជា</span>,
+              sorter: (a, b) =>
+                (a.order_num || "").localeCompare(b.order_num || ""),
             },
             {
               key: "paid_amount",
               dataIndex: "paid_amount",
               title: <span className="font-battambang">ចំនួនទូទាត់</span>,
+              sorter: (a, b) => a.paid_amount - b.paid_amount,
             },
             {
               key: "payment_method",
               dataIndex: "payment_method",
               title: <span className="font-battambang">វិធីទូទាត់</span>,
+              sorter: (a, b) =>
+                (a.payment_method || "").localeCompare(b.payment_method || ""),
             },
             {
               key: "remark",
               dataIndex: "remark",
               title: <span className="font-battambang">កត់សម្គាល់</span>,
+              sorter: (a, b) => (a.remark || "").localeCompare(b.remark || ""),
             },
             {
               key: "create_by",
@@ -183,12 +193,15 @@ const OrderPage = () => {
                   {val}
                 </Tag>
               ),
+              sorter: (a, b) =>
+                (a.create_by || "").localeCompare(b.create_by || ""),
             },
             {
               key: "created_at",
               dataIndex: "created_at",
               title: <span className="font-battambang">ពេលវេលា</span>,
               render: (value) => formatOrderTime(value),
+              sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             },
             {
               title: <span className="font-battambang">សកម្មភាព</span>,
@@ -203,7 +216,6 @@ const OrderPage = () => {
                       // className="!bg-green-500 hover:!bg-green-600 !text-white !border-green-500 rounded-md"
                     />
                   </Tooltip>
-
                   <Tooltip title="Print Invoice">
                     <Button
                       size="small"
