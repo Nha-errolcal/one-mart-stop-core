@@ -36,15 +36,7 @@ import userProfileImg from "@/assets/image/user.jpg";
 
 const navItems = [
   { key: "/", label: "ផ្ទាំងគ្រប់គ្រង", icon: <LayoutDashboard size={20} /> },
-  // {
-  //   key: "manage",
-  //   label: "ការគ្រប់គ្រង",
-  //   icon: <Users size={20} />,
-  //   children: [
-  //     { key: "/customer", label: "អតិថិជន", icon: <Users size={18} /> },
-  //     { key: "/employees", label: "បុគ្គលិក", icon: <UserCog size={18} /> },
-  //   ],
-  // },
+  { key: "/customer", label: "អតិថិជន", icon: <Users size={18} /> },
   {
     key: "products",
     label: "ទំនិញ/ផលិតផល",
