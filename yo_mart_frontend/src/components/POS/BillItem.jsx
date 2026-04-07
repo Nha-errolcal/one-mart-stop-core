@@ -7,7 +7,7 @@ const BillItem = ({
   product_out,
   cart_qty,
   discount,
-  image,
+  image_url,
   handleOnIncrease,
   handleOnDescrease,
   handleDeleteRowProduct,
@@ -28,9 +28,9 @@ const BillItem = ({
       {/* Name + avatar */}
       <td className="py-2 pr-2">
         <div className="flex items-center gap-2">
-          {image ? (
+          {image_url ? (
             <img
-              src={Config.image_path + image}
+              src={image_url}
               alt={name}
               className="w-8 h-8 rounded-lg object-cover shrink-0"
               style={{ border: "1px solid #e2e8f0" }}

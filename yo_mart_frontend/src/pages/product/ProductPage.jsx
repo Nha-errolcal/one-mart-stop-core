@@ -14,6 +14,7 @@ import {
   Image,
   Row,
   Col,
+  notification,
 } from "antd";
 import { formatDate, request } from "@/store/Configstore";
 import { MdDelete, MdEdit } from "react-icons/md";
@@ -35,6 +36,7 @@ const ProductPage = () => {
   const [previewImage, setPreviewImage] = useState("");
   const [filter, setFilter] = useState({ search: "", category_id: "" });
 
+  // -------------------- Fetching Data --------------------
   useEffect(() => {
     getAll();
     getCategory();
@@ -52,82 +54,45 @@ const ProductPage = () => {
 
   const getAll = async () => {
     try {
+      setState((pre) => ({ ...pre, loading: true }));
       const res = await request("product", "get", { ...filter });
-      if (res)
+      if (res.code === 200) {
         setState((pre) => ({ ...pre, list: res.getAll, loading: false }));
+        if (res.getAll.length === 0) {
+          notification.warning({
+            message: (
+              <span className="text-orange-400 font-battambang">ការព្រមាន</span>
+            ),
+            description: (
+              <span className="text-base font-battambang">
+                មិនមានផលិតផលដែលត្រូវនឹងលក្ខខណ្ឌស្វែងរកទេ។
+              </span>
+            ),
+            placement: "topRight",
+          });
+        }
+      }
     } catch (error) {
-      message.error(error);
+      notification.error({
+        message: "កំហុស",
+        description: error?.message || "មានបញ្ហាក្នុងការទាញទិន្នន័យ",
+        placement: "topRight",
+      });
+      setState((pre) => ({ ...pre, loading: false }));
     }
   };
 
+  // -------------------- Modal Handlers --------------------
   const onClickOpenModal = () => {
     setState((pre) => ({ ...pre, modal: true }));
     formRef.resetFields();
     setFileList([]);
   };
 
-  const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setPreviewImage(file.url || file.preview);
-    setPreviewOpen(true);
-  };
-
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
-
-  const getBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-
-  const onFinish = async (item) => {
-    try {
-      const id = formRef.getFieldValue("id");
-      const formData = new FormData();
-      formData.append("name", item.name);
-      formData.append("category_id", item.category_id);
-      formData.append("qty", item.qty || "");
-      formData.append("product_in", item.product_in || "");
-      formData.append("product_out", item.product_out || "");
-      formData.append("description", item.description || "");
-      formData.append("discount", item.discount || "");
-      formData.append("id", id);
-
-      if (item.image?.file) {
-        if (item.image.file.status === "removed") {
-          formData.append("image_remove", "1");
-        } else if (item.image.file.originFileObj) {
-          formData.append(
-            "image",
-            item.image.file.originFileObj,
-            item.image.file.name,
-          );
-        }
-      }
-
-      let url = "product";
-      let method = "post";
-      if (id !== undefined) {
-        url += "/" + id;
-        formData.append("_method", "put");
-      }
-
-      setState((pre) => ({ ...pre, loading: true }));
-      const res = await request(url, method, formData);
-      if (res) {
-        message.success(res.message);
-        setState((prev) => ({ ...prev, modal: false }));
-        getAll();
-        formRef.resetFields();
-        setFileList([]);
-      }
-    } catch (error) {
-      message.error("Failed to add product");
-    }
+  const handleEdit = (item) => {
+    formRef.setFieldsValue({ ...item });
+    setState((prev) => ({ ...prev, modal: true }));
+    loadExistingImage(item);
   };
 
   const handleDelete = (id) => {
@@ -153,16 +118,32 @@ const ProductPage = () => {
     });
   };
 
-  const handleEdit = (item) => {
-    formRef.setFieldsValue({ ...item });
-    setState((prev) => ({ ...prev, modal: true }));
-    if (item.image) {
+  // -------------------- Upload + Preview --------------------
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const handlePreview = async (file) => {
+    setPreviewImage(
+      file.url || file.preview || (await getBase64(file.originFileObj)),
+    );
+    setPreviewOpen(true);
+  };
+
+  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+
+  const loadExistingImage = (item) => {
+    if (item.image_url) {
       setFileList([
         {
           uid: "-1",
-          name: item.image,
+          name: item.image || "image.png",
           status: "done",
-          url: Config.image_path + item.image,
+          url: item.image_url,
         },
       ]);
     } else {
@@ -170,8 +151,56 @@ const ProductPage = () => {
     }
   };
 
+  // -------------------- Form Submit --------------------
+  const onFinish = async (item) => {
+    try {
+      const id = formRef.getFieldValue("id");
+      const formData = new FormData();
+      formData.append("name", item.name);
+      formData.append("category_id", item.category_id);
+      formData.append("qty", item.qty || "");
+      formData.append("product_in", item.product_in || "");
+      formData.append("product_out", item.product_out || "");
+      formData.append("description", item.description || "");
+      formData.append("discount", item.discount || "");
+      formData.append("id", id);
+
+      // Handle image
+      if (fileList.length > 0) {
+        const fileItem = fileList[0];
+        if (fileItem.status === "removed") {
+          formData.append("image_remove", "1");
+        } else if (fileItem.originFileObj) {
+          formData.append("image", fileItem.originFileObj, fileItem.name);
+        }
+      } else {
+        formData.append("image_remove", "1"); // remove image if none
+      }
+
+      let url = "product";
+      let method = "post";
+      if (id !== undefined) {
+        url += "/" + id;
+        formData.append("_method", "put");
+      }
+
+      setState((pre) => ({ ...pre, loading: true }));
+      const res = await request(url, method, formData);
+      if (res) {
+        message.success(res.message);
+        setState((prev) => ({ ...prev, modal: false }));
+        getAll();
+        formRef.resetFields();
+        setFileList([]);
+      }
+    } catch (error) {
+      message.error("Failed to add product");
+    }
+  };
+
   const isEditing = !!formRef.getFieldValue("id");
 
+  // -------------------- Render --------------------
   return (
     <>
       {/* Header */}
@@ -211,7 +240,7 @@ const ProductPage = () => {
             ))}
           </Select>
           <Button onClick={getAll} className="font-battambang">
-            តម្រង
+            ស្វែងរក
           </Button>
           <Button
             type="primary"
@@ -239,7 +268,7 @@ const ProductPage = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label={<span className="font-battambang">ឈ្មោះផលិតផល</span>}
+                label="ឈ្មោះផលិតផល"
                 name="name"
                 rules={[{ required: true, message: "សូមបញ្ចូលឈ្មោះផលិតផល" }]}
               >
@@ -248,7 +277,7 @@ const ProductPage = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span className="font-battambang">ប្រភេទ</span>}
+                label="ប្រភេទ"
                 name="category_id"
                 rules={[{ required: true, message: "សូមជ្រើសរើសប្រភេទ" }]}
               >
@@ -263,7 +292,7 @@ const ProductPage = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span className="font-battambang">បរិមាណ</span>}
+                label="បរិមាណ"
                 name="qty"
                 rules={[{ required: true, message: "សូមបញ្ចូលបរិមាណ" }]}
               >
@@ -272,7 +301,7 @@ const ProductPage = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span className="font-battambang">ផលិតផលចូល</span>}
+                label="ផលិតផលចូល"
                 name="product_in"
                 rules={[{ required: true, message: "សូមបញ្ចូលផលិតផលចូល" }]}
               >
@@ -281,7 +310,7 @@ const ProductPage = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span className="font-battambang">ផលិតផលចេញ</span>}
+                label="ផលិតផលចេញ"
                 name="product_out"
                 rules={[{ required: true, message: "សូមបញ្ចូលផលិតផលចេញ" }]}
               >
@@ -289,28 +318,21 @@ const ProductPage = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                label={<span className="font-battambang">បញ្ចុះតម្លៃ</span>}
-                name="discount"
-              >
+              <Form.Item label="បញ្ចុះតម្លៃ" name="discount">
                 <Input placeholder="បញ្ចុះតម្លៃ" type="number" size="large" />
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item
-                label={<span className="font-battambang">បរិយាយ</span>}
-                name="description"
-              >
+              <Form.Item label="បរិយាយ" name="description">
                 <Input.TextArea placeholder="បរិយាយផលិតផល" rows={3} />
               </Form.Item>
             </Col>
+
+            {/* Upload */}
             <Col span={24}>
-              <Form.Item
-                label={<span className="font-battambang">រូបភាព</span>}
-                name="image"
-              >
+              <Form.Item label="រូបភាព" name="image">
                 <Upload
-                  customRequest={(op) => op.onSuccess()}
+                  customRequest={({ onSuccess }) => onSuccess(null)}
                   listType="picture-card"
                   fileList={fileList}
                   onPreview={handlePreview}
@@ -318,45 +340,35 @@ const ProductPage = () => {
                   maxCount={1}
                 >
                   {fileList.length >= 1 ? null : (
-                    <button
-                      style={{ border: 0, background: "none" }}
-                      type="button"
-                    >
+                    <div className="flex flex-col items-center justify-center">
                       <PlusOutlined />
-                      <div style={{ marginTop: 8 }} className="font-battambang">
-                        Upload
-                      </div>
-                    </button>
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
                   )}
                 </Upload>
+
+                {previewImage && (
+                  <Image
+                    wrapperStyle={{ display: "none" }}
+                    preview={{
+                      visible: previewOpen,
+                      onVisibleChange: (v) => setPreviewOpen(v),
+                      afterOpenChange: (v) => !v && setPreviewImage(""),
+                    }}
+                    src={previewImage}
+                  />
+                )}
               </Form.Item>
-              {previewImage && (
-                <Image
-                  wrapperStyle={{ display: "none" }}
-                  preview={{
-                    visible: previewOpen,
-                    onVisibleChange: (v) => setPreviewOpen(v),
-                    afterOpenChange: (v) => !v && setPreviewImage(""),
-                  }}
-                  src={previewImage}
-                />
-              )}
             </Col>
           </Row>
 
           <Space style={{ marginTop: 8 }}>
             <Button
               onClick={() => setState((prev) => ({ ...prev, modal: false }))}
-              className="font-battambang"
             >
               បោះបង់
             </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={state.loading}
-              className="font-battambang"
-            >
+            <Button type="primary" htmlType="submit" loading={state.loading}>
               {isEditing ? "កែប្រែ" : "រក្សាទុក"}
             </Button>
           </Space>
@@ -369,43 +381,44 @@ const ProductPage = () => {
           size="small"
           bordered
           rowKey="id"
+          locale={{ emptyText: "មិនមានទិន្នន័យ" }}
           dataSource={state.list}
           loading={state.loading}
           columns={[
             {
               key: "name",
               dataIndex: "name",
-              title: <span className="font-battambang">ឈ្មោះផលិតផល</span>,
+              title: "ឈ្មោះផលិតផល",
               sorter: (a, b) => a.name?.localeCompare(b.name),
             },
             {
               key: "category_name",
               dataIndex: "category_name",
-              title: <span className="font-battambang">ប្រភេទ</span>,
+              title: "ប្រភេទ",
               sorter: (a, b) => a.category_name?.localeCompare(b.category_name),
             },
             {
               key: "qty",
               dataIndex: "qty",
-              title: <span className="font-battambang">បរិមាណ</span>,
+              title: "បរិមាណ",
               sorter: (a, b) => a.qty - b.qty,
             },
             {
               key: "product_in",
               dataIndex: "product_in",
-              title: <span className="font-battambang">ចូល</span>,
+              title: "ចូល",
               sorter: (a, b) => a.product_in - b.product_in,
             },
             {
               key: "product_out",
               dataIndex: "product_out",
-              title: <span className="font-battambang">ចេញ</span>,
+              title: "ចេញ",
               sorter: (a, b) => a.product_out - b.product_out,
             },
             {
               key: "image",
-              dataIndex: "image",
-              title: <span className="font-battambang">រូបភាព</span>,
+              dataIndex: "image_url",
+              title: "រូបភាព",
               render: (value) =>
                 value ? (
                   <Image
@@ -415,7 +428,7 @@ const ProductPage = () => {
                       objectFit: "cover",
                       borderRadius: 6,
                     }}
-                    src={Config.image_path + value}
+                    src={value}
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-md bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
@@ -426,35 +439,31 @@ const ProductPage = () => {
             {
               key: "description",
               dataIndex: "description",
-              title: <span className="font-battambang">បរិយាយ</span>,
-              render: (value) => (
-                <p className="w-40 font-battambang text-xs truncate">{value}</p>
-              ),
-              sorter: (a, b) =>
-                (a.description || "").localeCompare(b.description || ""),
+              title: "បរិយាយ",
+              render: (v) => <p className="w-40 truncate text-xs">{v}</p>,
             },
             {
               key: "discount",
               dataIndex: "discount",
-              title: <span className="font-battambang">បញ្ចុះតម្លៃ</span>,
+              title: "បញ្ចុះតម្លៃ",
               sorter: (a, b) => a.discount - b.discount,
             },
             {
               key: "create_by",
               dataIndex: "create_by",
-              title: <span className="font-battambang">បង្កើតដោយ</span>,
+              title: "បង្កើតដោយ",
               sorter: (a, b) => a.create_by?.localeCompare(b.create_by),
             },
             {
               key: "created_at",
               dataIndex: "created_at",
-              title: <span className="font-battambang">កាលបរិច្ឆេទ</span>,
-              render: (value) => formatDate(value),
+              title: "កាលបរិច្ឆេទ",
+              render: (v) => formatDate(v),
               sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             },
             {
-              title: <span className="font-battambang">សកម្មភាព</span>,
               key: "action",
+              title: "សកម្មភាព",
               render: (item) => (
                 <Space size={6}>
                   <Tooltip title="មើលព័ត៌មាន">
@@ -462,7 +471,7 @@ const ProductPage = () => {
                       size="small"
                       icon={<IoEyeSharp size={15} />}
                       onClick={() => handleEdit(item)}
-                      className="!bg-green-500 hover:!bg-green-600 !text-white !border-green-500 rounded-md"
+                      className="!bg-green-500 hover:!bg-green-600 !text-white rounded-md"
                     />
                   </Tooltip>
                   <Tooltip title="កែប្រែ">
@@ -470,7 +479,7 @@ const ProductPage = () => {
                       size="small"
                       icon={<MdEdit size={15} />}
                       onClick={() => handleEdit(item)}
-                      className="!bg-blue-500 hover:!bg-blue-600 !text-white !border-blue-500 rounded-md"
+                      className="!bg-blue-500 hover:!bg-blue-600 !text-white rounded-md"
                     />
                   </Tooltip>
                   <Tooltip title="លុប">
@@ -478,7 +487,7 @@ const ProductPage = () => {
                       size="small"
                       icon={<MdDelete size={15} />}
                       onClick={() => handleDelete(item.id)}
-                      className="!bg-red-500 hover:!bg-red-600 !text-white !border-red-500 rounded-md"
+                      className="!bg-red-500 hover:!bg-red-600 !text-white rounded-md"
                     />
                   </Tooltip>
                 </Space>

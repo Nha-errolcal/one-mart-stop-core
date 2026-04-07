@@ -110,14 +110,26 @@ const Dashboard = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        <LineChartBox data={weeklyData} />
-        <LineChartBox data={monthlyData} />
+        <div className="bg-white p-2 shadow-sm rounded-md">
+          <h1 className="text-xl font-bold mb-4">ការលក់ប្រចាំសប្តាហ៍</h1>
+          <LineChartBox data={weeklyData} />
+        </div>
+        <div className="bg-white p-2 shadow-sm rounded-md">
+          <h1 className="text-xl font-bold mb-4">ការលក់ប្រចាំខែ</h1>
+          <LineChartBox data={monthlyData} />
+        </div>
       </div>
 
       {/* Top Products */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        <TopProductsChart data={topProducts} />
-        <TopProductsTable data={topProducts} />
+        <div className="bg-white p-2 shadow-sm rounded-md">
+          <h1 className="text-xl font-bold mb-4">ផលិតផលដែលបានលក់ច្រើន</h1>
+          <TopProductsChart data={topProducts} />
+        </div>
+        <div className="bg-white p-2 shadow-sm rounded-md">
+          <h1 className="text-xl font-bold mb-4">ផលិតផលដែលបានលក់ច្រើន</h1>
+          <TopProductsTable data={topProducts} />
+        </div>
       </div>
     </div>
   );

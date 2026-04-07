@@ -179,7 +179,7 @@ const UserPage = () => {
   };
 
   return (
-    <MainPage loading={state.loading}>
+    <>
       {/* HEADER */}
       <div className="flex justify-between bg-white p-3 rounded-md mb-3">
         <div>
@@ -412,7 +412,7 @@ const UserPage = () => {
           </div>
         )}
       </Modal>
-    </MainPage>
+    </>
   );
 };
 

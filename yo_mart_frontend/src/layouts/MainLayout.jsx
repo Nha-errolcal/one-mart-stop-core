@@ -1,10 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
-import { Outlet, useLocation, useNavigate, NavLink } from "react-router-dom";
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  NavLink,
+  Link,
+} from "react-router-dom";
 import { request } from "@/store/Configstore";
 import { getProfile, removeAcccessToken, setProfile } from "@/store/profile";
 
 import { Dropdown } from "antd";
-import { ChevronDown, Info, Menu as MenuIcon, UserCheck } from "lucide-react";
+import {
+  Bell,
+  ChevronDown,
+  Info,
+  LogOut,
+  Menu as MenuIcon,
+  User,
+  UserCheck,
+} from "lucide-react";
 
 import {
   LayoutDashboard,
@@ -22,22 +36,22 @@ import userProfileImg from "@/assets/image/user.jpg";
 
 const navItems = [
   { key: "/", label: "ផ្ទាំងគ្រប់គ្រង", icon: <LayoutDashboard size={20} /> },
-  {
-    key: "manage",
-    label: "ការគ្រប់គ្រង",
-    icon: <Users size={20} />,
-    children: [
-      { key: "/customer", label: "អតិថិជន", icon: <Users size={18} /> },
-      { key: "/employees", label: "បុគ្គលិក", icon: <UserCog size={18} /> },
-    ],
-  },
+  // {
+  //   key: "manage",
+  //   label: "ការគ្រប់គ្រង",
+  //   icon: <Users size={20} />,
+  //   children: [
+  //     { key: "/customer", label: "អតិថិជន", icon: <Users size={18} /> },
+  //     { key: "/employees", label: "បុគ្គលិក", icon: <UserCog size={18} /> },
+  //   ],
+  // },
   {
     key: "products",
     label: "ទំនិញ/ផលិតផល",
     icon: <Package size={20} />,
     children: [
       {
-        key: "/product_detail",
+        key: "/products",
         label: "បញ្ជីផលិតផល",
         icon: <Package size={18} />,
       },
@@ -50,26 +64,52 @@ const navItems = [
     icon: <ShoppingCart size={20} />,
     children: [
       {
-        key: "/pos",
-        label: "POS លក់",
+        key: "/sale/pos",
+        label: "លក់",
         icon: <Store size={18} />,
         newTab: true,
       },
-      { key: "/order", label: "ការបញ្ជាទិញ", icon: <ShoppingCart size={18} /> },
+      {
+        key: "/sale/order",
+        label: "ការបញ្ជាទិញ",
+        icon: <ShoppingCart size={18} />,
+      },
     ],
   },
+  // {
+  //   key: "settings",
+  //   label: "ការកំណត់",
+  //   icon: <Settings size={20} />,
+  //   children: [
+  //     {
+  //       key: "/user",
+  //       label: "អ្នកប្រើប្រាស់",
+  //       icon: <Users size={18} />,
+  //     },
+  //     {
+  //       key: "/role",
+  //       label: "តួនាទី",
+  //       icon: <UserCheck size={18} />,
+  //     },
+  //   ],
+  // },
   {
-    key: "settings",
-    label: "ការកំណត់",
-    icon: <Settings size={20} />,
+    key: "account",
+    label: "គ្រប់គ្រងគណនី",
+    icon: <Users size={20} />,
     children: [
       {
-        key: "/user",
-        label: "អ្នកប្រើប្រាស់",
+        key: "/account/users",
+        label: "បញ្ជីសមាជិក",
         icon: <Users size={18} />,
       },
       {
-        key: "/role",
+        key: "/account/profile",
+        label: "ប្រវត្តិគណនី",
+        icon: <User size={18} />,
+      },
+      {
+        key: "/account/roles",
         label: "តួនាទី",
         icon: <UserCheck size={18} />,
       },
@@ -118,8 +158,8 @@ const SidebarMenu = ({ collapsed = false }) => {
                   [
                     "flex items-center text-sm gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                     isActive
-                      ? "bg-blue-500 text-white font-semibold shadow-md"
-                      : "text-slate-300 hover:bg-white/10 hover:text-white",
+                      ? "bg-[#EA4156] text-white shadow-md"
+                      : "text-black hover:bg-[#EA4156] hover:text-white",
                   ].join(" ")
                 }
               >
@@ -141,8 +181,8 @@ const SidebarMenu = ({ collapsed = false }) => {
               className={[
                 "w-full flex items-center  text-sm justify-between px-3 py-2.5 rounded-lg transition-all duration-200",
                 isAnyActive
-                  ? "bg-white/10  text-sm text-white font-semibold"
-                  : "text-slate-300  text-sm hover:bg-white/10 hover:text-white",
+                  ? "bg-[#EA4156] text-sm text-white font-semibold"
+                  : "text-gray-700 text-sm hover:bg-[#EA4156] hover:text-white",
               ].join(" ")}
               type="button"
             >
@@ -171,7 +211,7 @@ const SidebarMenu = ({ collapsed = false }) => {
                         href={child.key}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3  text-sm rounded-lg px-3 py-2 text-slate-400 hover:bg-white/10 hover:text-white transition-all duration-200"
+                        className="flex items-center gap-3  text-sm rounded-lg px-3 py-2 text-gray-800 hover:bg-white/10 hover:text-[#EA4156] transition-all duration-200"
                       >
                         <span>{child.icon}</span>
                         <span>{child.label}</span>
@@ -183,8 +223,8 @@ const SidebarMenu = ({ collapsed = false }) => {
                           [
                             "flex items-center gap-3 rounded-lg px-3  text-sm py-2 transition-all duration-200",
                             isActive
-                              ? "bg-blue-500 text-white font-semibold shadow-md"
-                              : "text-slate-400 hover:bg-white/10 hover:text-white",
+                              ? "text-[#EA4156] font-semibold shadow-sm"
+                              : "text-gray-800 hover:text-[#EA4156] ",
                           ].join(" ")
                         }
                       >
@@ -260,30 +300,68 @@ const MainLayout = () => {
 
   const menuItems = [
     {
-      key: "role",
+      key: "profile-header",
       label: (
-        <div className="flex flex-col items-start p-4 transition-colors duration-200 rounded-t-xl hover:bg-gray-100">
-          <h1 className="font-battambang font-semibold text-gray-800">
-            Name: {user?.name || "User"}
-          </h1>
-          <p className="text-sm text-gray-500">
-            Role: {user?.roles[0]?.name || "Role"}
-          </p>
+        <Link to={"/account/profile"}>
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
+            <div className="relative w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+              {user?.name?.slice(0, 2).toUpperCase() || "DA"}
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-800">
+                {user?.name || "User"}
+              </p>
+              <p className="text-xs text-gray-500">
+                {user?.roles[0]?.name || "Role"}
+              </p>
+            </div>
+          </div>
+        </Link>
+      ),
+    },
+    {
+      key: "profile",
+      label: (
+        <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+          <User size={16} className="text-gray-400" />
+          <Link to="/account/profile">
+            <span className="text-sm text-gray-700">My Profile</span>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      key: "settings",
+      label: (
+        <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+          <Settings size={16} className="text-gray-400" />
+          <span className="text-sm text-gray-700">Settings</span>
+        </div>
+      ),
+    },
+    {
+      key: "notifications",
+      label: (
+        <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+          <Bell size={16} className="text-gray-400" />
+          <span className="text-sm text-gray-700">Notifications</span>
         </div>
       ),
     },
     {
       key: "divider",
-      label: <div className="border-t border-gray-200 my-1"></div>,
+      label: <div className="border-t border-gray-100 my-1" />,
     },
     {
       key: "logout",
       label: (
         <div
-          className="flex items-center p-4 transition-colors duration-200 rounded-b-xl hover:bg-red-100 cursor-pointer"
+          className="flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 cursor-pointer transition-colors"
           onClick={handleLogout}
         >
-          <span className="font-battambang text-red-500 font-medium">
+          <LogOut size={16} className="text-red-500" />
+          <span className="font-battambang text-sm text-red-500 font-medium">
             ចាកចេញ
           </span>
         </div>
@@ -296,29 +374,31 @@ const MainLayout = () => {
   return (
     <div className="h-screen w-full flex overflow-hidden font-battambang">
       <aside
-        style={{ backgroundColor: "#1e2330" }}
-        className={`flex flex-col transition-all duration-300 ${collapsed ? "w-16" : "w-60"}`}
+        // style={{ backgroundColor: "#1e2330" }}
+        className={`flex flex-col transition-all bg-white duration-300 shadow-md  ${collapsed ? "w-16" : "w-60"}`}
       >
         {/* Logo bar */}
         <div
-          style={{ backgroundColor: "#161b27" }}
-          className="h-16 px-3 flex items-center gap-3 shrink-0"
+          // style={{ backgroundColor: "#161b27" }}
+          className="h-16 px-3 flex items-center bg-white  gap-3 shrink-0"
         >
-          <div className="w-9 h-9 shrink-0 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
+          <div className="w-10 h-10 shrink-0 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
             <img
-              src={logo}
+              src={
+                "https://t3.ftcdn.net/jpg/04/64/84/48/360_F_464844845_KtkWjjA3cPqj2SdEdG3pFjnXxuX680yi.jpg"
+              }
               alt="Logo"
               className="w-full h-full object-contain"
             />
           </div>
           {!collapsed && (
             <div className="leading-tight overflow-hidden">
-              <div className="text-sm font-bold text-white truncate">
+              <div className="text-sm font-bold text-[#EA4156] truncate">
                 ម៉ាតវ៉ាន់ស្តុប ខេអេច
               </div>
-              <div className="text-[11px] text-slate-400 truncate">
+              {/* <div className="text-[11px] text-slate-400 truncate">
                 Admin Dashboard
-              </div>
+              </div> */}
             </div>
           )}
         </div>
@@ -328,6 +408,20 @@ const MainLayout = () => {
           <SidebarMenu collapsed={collapsed} />
         </nav>
 
+        <div className="p-3 text-center">
+          <p className="text-[10px] font-mono text-gray-700">
+            © {new Date().getFullYear()} Mat Van Stop KH · All rights reserved
+            by <br />
+            <a
+              href="https://teamyearng.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-400 transition-colors"
+            >
+              teamyearng
+            </a>
+          </p>
+        </div>
         {/* Footer */}
         {/* <div
           style={{ backgroundColor: "#161b27" }}
@@ -356,10 +450,10 @@ const MainLayout = () => {
       </aside>
 
       {/* ── Main ── */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <header
-          style={{ backgroundColor: "#1a56db" }}
-          className="h-16 px-5 flex items-center justify-between shrink-0 shadow-md shadow-blue-900/20"
+          // style={{ backgroundColor: "#1a56db" }}
+          className="h-16 px-5 flex items-center bg-white justify-between shrink-0 shadow-sm mb-2"
         >
           {/* Left */}
           <div className="flex items-center gap-3">
@@ -369,15 +463,15 @@ const MainLayout = () => {
               aria-label="Toggle sidebar"
               type="button"
             >
-              <MenuIcon size={20} className="text-white" />
+              <MenuIcon size={20} className="text-[#EA4156]" />
             </button>
             <div className="hidden md:block">
-              <div className="text-base font-semibold text-white">
+              <div className="text-base font-semibold text-[#EA4156]">
                 សូមស្វាគមន៍ 👋
               </div>
-              <div className="text-[11px] text-blue-200">{currentTime}</div>
+              <div className="text-[11px] text-[#EA4156]">{currentTime}</div>
             </div>
-            <div className="md:hidden text-[11px] text-blue-200">
+            <div className="md:hidden text-[11px] text-[#EA4156]">
               {currentTime}
             </div>
           </div>
@@ -385,7 +479,7 @@ const MainLayout = () => {
           {/* Right */}
           <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
             <button
-              className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-white/15 transition active:scale-[0.99]"
+              className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-white transition active:scale-[0.99]"
               type="button"
             >
               <div className="relative">
@@ -397,7 +491,7 @@ const MainLayout = () => {
                 <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-blue-600" />
               </div>
 
-              <ChevronDown size={15} className="text-white/70" />
+              <ChevronDown size={15} className="text-black" />
             </button>
           </Dropdown>
         </header>

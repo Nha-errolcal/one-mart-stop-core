@@ -15,6 +15,9 @@ import CustomerScreen from "./components/POS/CustomerScreen";
 import UserPage from "./pages/auth/UserPage";
 import AboutSystem from "./pages/about/AboutSystem";
 import AboutTeam from "./pages/about/AboutTeam";
+import ProfilePage from "./pages/auth/ProfilePage";
+import EditProfilePage from "./pages/auth/EditProfilePage";
+import FindAccount from "./pages/auth/FindAccount";
 function App() {
   return (
     <BrowserRouter>
@@ -23,18 +26,22 @@ function App() {
           <Route path="/" element={<DashbordPage />} />
           <Route path="/employees" element={<EmployeesPage />} />
           <Route path="/customer" element={<CustomerPage />} />
-          <Route path="/product_detail" element={<ProductPage />} />
+          <Route path="/products" element={<ProductPage />} />
           <Route path="/category" element={<CategoryPage />} />
-          <Route path="/order" element={<OrderPage />} />
-          <Route path="/user" element={<UserPage />} />
+          <Route path="/sale/order" element={<OrderPage />} />
+          <Route path="/account/users" element={<UserPage />} />
+          <Route path="/account/profile" element={<ProfilePage />} />
+          <Route path="/account/profile/edit" element={<EditProfilePage />} />
+          <Route path="/account/roles" element={<UserPage />} />
           <Route path="/about/system" element={<AboutSystem />} />
           <Route path="/about/team" element={<AboutTeam />} />
           <Route path="*" element={<h1>404-Route Not Found!</h1>} />
         </Route>
         <Route element={<MainLayoutPOS />}>
-          <Route path="/pos" element={<POSPageSale />} />
+          <Route path="/sale/pos" element={<POSPageSale />} />
           <Route path="/pos/customer_screen" element={<CustomerScreen />} />
         </Route>
+        <Route path="/auth/find_account" element={<FindAccount />} />
         <Route element={<MainLayoutAuth />}>
           <Route path="/login" element={<LoginPage />} />
         </Route>

@@ -536,7 +536,7 @@ const POSPageSale = () => {
                 boxShadow: "0 2px 10px rgba(59,130,246,0.3)",
               }}
             >
-              <Zap size={12} /> តម្រង
+              <Zap size={12} /> ស្វែងរក
             </button>
           </div>
 

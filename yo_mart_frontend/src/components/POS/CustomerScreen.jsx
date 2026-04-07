@@ -69,8 +69,14 @@ const CustomerScreen = () => {
     >
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 8 }}>
-        <img src={logo} alt="logo" style={{ width: 50 }} />
-        <div style={{ fontWeight: "bold" }}>ផ្ទះកាហ្វេ 24/7</div>
+        <img
+          src={
+            "https://t3.ftcdn.net/jpg/04/64/84/48/360_F_464844845_KtkWjjA3cPqj2SdEdG3pFjnXxuX680yi.jpg"
+          }
+          alt="logo"
+          style={{ width: 100 }}
+        />
+        <div style={{ fontWeight: "bold" }}>ម៉ាតវ៉ាន់ស្តុប ខេអេច</div>
         <div style={{ fontSize: 10, color: "#555" }}>POS System</div>
         <div style={{ borderBottom: "1px dashed #000", margin: "6px 0" }} />
       </div>

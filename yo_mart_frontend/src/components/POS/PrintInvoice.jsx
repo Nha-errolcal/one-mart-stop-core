@@ -50,17 +50,21 @@ const PrintInvoice = React.forwardRef((props, ref) => {
       {/* ── Header ── */}
       <div style={{ textAlign: "center", marginBottom: 8 }}>
         <img
-          src={logo}
+          src={
+            "https://t3.ftcdn.net/jpg/04/64/84/48/360_F_464844845_KtkWjjA3cPqj2SdEdG3pFjnXxuX680yi.jpg"
+          }
           alt="logo"
-          style={{ width: 52, margin: "0 auto 4px" }}
+          style={{ width: 80, margin: "0 auto 4px" }}
         />
         <div
           style={{ fontWeight: "bold", fontSize: 13 }}
           className="font-battambang"
         >
-          ហាងកាហ្វេអាយធីស្មោះស្នេហ៍
+          ម៉ាតវ៉ាន់ស្តុប ខេអេច
         </div>
-        <div style={{ fontSize: 10, color: "#555" }}>IT Cafe | POS System</div>
+        <div style={{ fontSize: 10, color: "#555" }}>
+          IT System | POS System
+        </div>
         <div style={{ borderBottom: "1px dashed #000", margin: "6px 0" }} />
       </div>
 

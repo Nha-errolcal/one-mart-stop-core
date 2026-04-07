@@ -127,7 +127,9 @@ const MainLayoutPOS = () => {
               }}
             >
               <img
-                src={logo}
+                src={
+                  "https://t3.ftcdn.net/jpg/04/64/84/48/360_F_464844845_KtkWjjA3cPqj2SdEdG3pFjnXxuX680yi.jpg"
+                }
                 alt="logo"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
@@ -138,19 +140,19 @@ const MainLayoutPOS = () => {
                 style={{
                   fontSize: 17,
                   fontWeight: 700,
-                  color: "#1e293b",
+                  color: "#EA4156",
                   lineHeight: 1.2,
                   margin: 0,
                 }}
               >
-                ផ្ទះកាហ្វេ 24/7
+                ម៉ាតវ៉ាន់ស្តុប ខេអេច
               </h1>
-              <p
+              {/* <p
                 className="font-battambang"
                 style={{ fontSize: 11, color: "#f97316", margin: 0 }}
               >
                 សូមស្វាគមន៍
-              </p>
+              </p> */}
             </div>
           </div>
 

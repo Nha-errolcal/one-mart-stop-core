@@ -6,6 +6,7 @@ import {
   Input,
   message,
   Modal,
+  notification,
   Select,
   Space,
   Table,
@@ -15,7 +16,10 @@ import {
 import { formatDate, request } from "@/store/Configstore";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { IoEyeSharp } from "react-icons/io5";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+
 import { useForm } from "antd/es/form/Form";
+import { Plus, Search } from "lucide-react";
 
 const CategoryPage = () => {
   const [state, setState] = useState({
@@ -25,7 +29,7 @@ const CategoryPage = () => {
     currentCategory: null,
   });
   const [form] = useForm();
-
+  const [searchText, setSearchText] = useState("");
   useEffect(() => {
     getAll();
   }, []);
@@ -33,12 +37,12 @@ const CategoryPage = () => {
   const getAll = async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await request("category", "get");
-      if (res && res.getAll) {
+      const res = await request(`category?search=${searchText}`, "get");
+      if (res && res.getAll && res.getAll.length > 0) {
         setState((prev) => ({ ...prev, list: res.getAll, loading: false }));
       } else {
-        message.warning("No data found.");
-        setState((prev) => ({ ...prev, loading: false }));
+        message.warning("មិនមានប្រភេទផលិតផលណាមួយត្រូវនឹងលក្ខខណ្ឌស្វែងរកទេ");
+        setState((prev) => ({ ...prev, list: [], loading: false }));
       }
     } catch (error) {
       message.error("Failed to fetch categories. Please try again later.");
@@ -53,7 +57,11 @@ const CategoryPage = () => {
       const method = id ? "put" : "post";
       const res = await request(endpoint, method, values);
       if (res) {
-        message.success("Category saved successfully");
+        notification.success({
+          message: "ជោគជ័យ",
+          description: "Category saved successfully",
+          placement: "topRight",
+        });
         setState((prev) => ({
           ...prev,
           modalVisible: false,
@@ -62,7 +70,16 @@ const CategoryPage = () => {
         getAll();
       }
     } catch (error) {
-      message.error("Failed to save category. Please try again.");
+      if (error?.message?.includes("duplicate key") || error?.status === 500) {
+        notification.error({
+          message: "កំហុស",
+          description:
+            "រក្សាទុកបរាជ័យ៖ មានបញ្ហាជាមួយ ID។ សូមទាក់ទងអ្នកគ្រប់គ្រង។",
+          placement: "topRight",
+        });
+      } else {
+        message.error("Failed to save category. Please try again.");
+      }
     }
   };
 
@@ -112,25 +129,48 @@ const CategoryPage = () => {
   };
 
   return (
-    <MainPage loading={state.loading}>
+    <>
       {/* Header */}
-      <div className="flex bg-white p-3 rounded-md flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900 font-battambang">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-white p-4 rounded-lg shadow-sm gap-4 mb-6">
+        {/* Title Section */}
+        <div className="flex flex-col">
+          <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 font-battambang">
             បញ្ជីប្រភេទផលិតផល
           </h1>
-          <p className="text-sm text-slate-500 font-battambang">
+          <p className="text-sm md:text-base text-gray-500 font-battambang mt-1">
             គ្រប់គ្រង និងមើលព័ត៌មានប្រភេទផលិតផល ({state.list.length} ប្រភេទ)
           </p>
         </div>
-        <Button
-          type="primary"
-          size="large"
-          onClick={handleAdd}
-          className="font-battambang shadow-sm"
-        >
-          + បង្កើតប្រភេទថ្មី
-        </Button>
+
+        {/* Search Section */}
+
+        {/* Add Button */}
+        <div className="flex justify-end w-full md:w-auto">
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <Input
+              placeholder="ស្វែងរកប្រភេទ..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onPressEnter={getAll}
+              className="rounded-md border-gray-300 shadow-sm"
+            />
+            <Button
+              type="primary"
+              onClick={getAll}
+              className="font-battambang px-4 py-2 shadow-md"
+            >
+              <Search size="20" /> ស្វែងរក
+            </Button>
+          </div>
+          <Button
+            type="primary"
+            size="sm"
+            onClick={handleAdd}
+            className="font-battambang ml-2 shadow-md bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus /> បង្កើតប្រភេទថ្មី
+          </Button>
+        </div>
       </div>
 
       {/* Modal */}
@@ -159,7 +199,7 @@ const CategoryPage = () => {
           <Form.Item
             name="description"
             label={<span className="font-battambang">បរិយាយ</span>}
-            rules={[{ required: true, message: "សូមបញ្ចូលបរិយាយ" }]}
+            // rules={[{ required: true, message: "សូមបញ្ចូលបរិយាយ" }]}
           >
             <Input.TextArea placeholder="បញ្ចូលបរិយាយ" rows={3} />
           </Form.Item>
@@ -197,6 +237,13 @@ const CategoryPage = () => {
           loading={state.loading}
           columns={[
             {
+              key: "no",
+              title: <span className="font-battambang">ល.រ</span>,
+              render: (text, record, index) => (
+                <span className="font-battambang">{index + 1}</span>
+              ),
+            },
+            {
               key: "name",
               dataIndex: "name",
               title: <span className="font-battambang">ឈ្មោះប្រភេទ</span>,
@@ -212,12 +259,12 @@ const CategoryPage = () => {
               sorter: (a, b) =>
                 (a.description || "").localeCompare(b.description || ""),
             },
-            {
-              key: "create_by",
-              dataIndex: "create_by",
-              title: <span className="font-battambang">បង្កើតដោយ</span>,
-              sorter: (a, b) => a.create_by?.localeCompare(b.create_by),
-            },
+            // {
+            //   key: "create_by",
+            //   dataIndex: "create_by",
+            //   title: <span className="font-battambang">បង្កើតដោយ</span>,
+            //   sorter: (a, b) => a.create_by?.localeCompare(b.create_by),
+            // },
             {
               key: "status",
               dataIndex: "status",
@@ -225,11 +272,11 @@ const CategoryPage = () => {
               render: (status) =>
                 status === 1 ? (
                   <Tag color="green" className="font-battambang">
-                    សកម្ម
+                    <CheckCircleOutlined />
                   </Tag>
                 ) : (
                   <Tag color="red" className="font-battambang">
-                    អសកម្ម
+                    <CloseCircleOutlined />
                   </Tag>
                 ),
               sorter: (a, b) => a.status - b.status,
@@ -282,7 +329,7 @@ const CategoryPage = () => {
           ]}
         />
       </div>
-    </MainPage>
+    </>
   );
 };
 

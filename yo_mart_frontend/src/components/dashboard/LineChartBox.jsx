@@ -1,10 +1,12 @@
 import {
-  LineChart,
+  AreaChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 
 const LineChartBox = ({ data, title }) => {
@@ -13,12 +15,13 @@ const LineChartBox = ({ data, title }) => {
       <h3 className="mb-4 font-semibold">{title}</h3>
 
       <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={data}>
+        <AreaChart data={data}>
           <XAxis dataKey="label" />
           <YAxis />
           <Tooltip />
-          <Line type="monotone" dataKey="value" strokeWidth={3} />
-        </LineChart>
+          <Area type="monotone" dataKey="value" strokeWidth={3} />
+          <CartesianGrid strokeDasharray="3 3" />
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

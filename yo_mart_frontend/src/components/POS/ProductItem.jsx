@@ -6,6 +6,7 @@ const ProductItem = ({
   product_out,
   discount,
   image,
+  image_url,
   qty,
   category_name,
   handlAddTocart,
@@ -50,9 +51,9 @@ const ProductItem = ({
         className="relative overflow-hidden"
         style={{ height: 105, background: "#f8fafc" }}
       >
-        {image ? (
+        {image_url ? (
           <img
-            src={Config.image_path + image}
+            src={image_url}
             alt={name}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
