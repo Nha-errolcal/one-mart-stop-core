@@ -16,6 +16,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'admin_id',
         'create_by'
     ];
 
@@ -72,6 +73,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->roles()
             ->whereHas('permissions', fn($q) => $q->where('code', $permissionCode))
             ->exists();
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Collection;
 use App\Helpers\ResponseData;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 if (!function_exists('apiResponse')) {
@@ -55,4 +56,27 @@ if (!function_exists('flattenRolesActions')) {
             ];
         });
     }
+}
+
+
+function autoNoCode($prefix, $table, $column = 'code', $length = 6)
+{
+    // get latest code that match prefix
+    $latest = DB::table($table)
+        ->where($column, 'like', $prefix . '%')
+        ->orderBy($column, 'desc')
+        ->first();
+
+    $number = 1;
+
+    if ($latest && isset($latest->$column)) {
+        $lastCode = $latest->$column;
+
+        // extract number safely
+        $lastNumber = (int) str_replace($prefix, '', $lastCode);
+
+        $number = $lastNumber + 1;
+    }
+
+    return $prefix . str_pad($number, $length, '0', STR_PAD_LEFT);
 }

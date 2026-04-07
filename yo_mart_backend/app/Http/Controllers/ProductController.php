@@ -13,141 +13,135 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $txt_search = $request->input('search');
-        $category_id = $request->input('category_id');
+        try {
+            $txt_search = $request->input('search');
+            $category_id = $request->input('category_id');
 
-        $getAll = DB::table('product')
-            ->join('category', 'product.category_id', '=', 'category.id')
-            ->select('product.*', 'category.name as category_name')
-            ->when($txt_search, function ($query, $txt_search) {
-                return $query->where('product.name', 'like', "%{$txt_search}%")
-                    ->orWhere('category.name', 'like', "%{$txt_search}%");
-            })
-            ->when($category_id, function ($query, $category_id) {
-                return $query->where('product.category_id', $category_id);
-            })
-            ->orderBy('product.created_at', 'desc')
-            ->get();
+            $products = DB::table('product')
+                ->join('category', 'product.category_id', '=', 'category.id')
+                ->select('product.*', 'category.name as category_name')
+                ->when($txt_search, function ($query, $txt_search) {
+                    return $query->where('product.name', 'like', "%{$txt_search}%")
+                        ->orWhere('category.name', 'like', "%{$txt_search}%");
+                })
+                ->when($category_id, function ($query, $category_id) {
+                    return $query->where('product.category_id', $category_id);
+                })
+                ->orderBy('product.created_at', 'desc')
+                ->get();
 
-        return response()->json([
-            'getAll' => $getAll,
-        ]);
+            $products = $products->map(function ($item) {
+                $item->image_url = $item->image
+                    ? asset('storage/' . $item->image)
+                    : null;
+                return $item;
+            });
+
+            return response()->json([
+                "code" => 200,
+                "message" => "Get all products successfully!",
+                'getAll' => $products
+            ]);
+        } catch (\Throwable $th) {
+            dd($th);
+            return response()->json(['message' => 'Get all failed', 'error' => $th->getMessage()], 500);
+        }
     }
 
-
-    public function store(ProductRequest $product)
+    // ✅ CREATE
+    public function store(ProductRequest $request)
     {
-        $product->validated();
+        $validated = $request->validated();
 
-        if (Auth::check()) {
-            $product['create_by'] = Auth::user()->name;
-        } else {
+        if (!Auth::check()) {
             return response()->json([
                 'message' => 'User not authenticated.',
             ], 401);
         }
 
+        $validated['create_by'] = Auth::user()->name;
 
-        $dataForFind = $product->all();
-
-        if ($product->hasFile('image')) {
-            $dataForFind['image'] = $product->file('image')->store('products', 'laravel_api_image');
-            /**
-             * ****************** process ****************** :
-             * $dataForFind['image']=products/RriQzVaw784LDv604GzXr0wBFFeHsvs7Up3uVvCG.png
-             * http://localhost/laravel_api_image/products/RriQzVaw784LDv604GzXr0wBFFeHsvs7Up3uVvCG.png
-             */
+        // upload image
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('file', 'public');
         }
 
-
-        $product = Product::create($dataForFind);
+        $product = Product::create($validated);
 
         return response()->json([
             'message' => 'Product created successfully!',
             'product' => $product,
-            'image' => $product->image ?? null,
+            'image_url' => $product->image
+                ? asset('storage/' . $product->image)
+                : null,
         ], 201);
     }
 
-
-
+    // ✅ UPDATE
     public function update(ProductRequest $request, Product $product)
     {
         try {
+            $validated = $request->validated();
 
-            $validatedData = $request->validated();
-
-
+            // remove image
             if (!empty($request->image_remove) && $product->image) {
-                $this->removeOldImage($product->image);
-                $validatedData['image'] = null;
+                Storage::disk('public')->delete($product->image);
+                $validated['image'] = null;
             }
 
-            // new image upload
+            // upload new image
             if ($request->hasFile('image')) {
                 if ($product->image) {
-                    $this->removeOldImage($product->image); // Remove the old image
+                    Storage::disk('public')->delete($product->image);
                 }
-                $validatedData['image'] = $request->file('image')->store('products', 'laravel_api_image');
+
+                $validated['image'] = $request->file('image')->store('file', 'public');
             }
 
-            // Update the product with all validated data
-            $product->update($validatedData);
+            $product->update($validated);
 
             return response()->json([
                 'message' => 'Product updated successfully!',
                 'product' => $product,
-            ], 200);
+                'image_url' => $product->image
+                    ? asset('storage/' . $product->image)
+                    : null,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'An error occurred while updating the product.',
-                'error' => $e->getMessage(),
+                'message' => 'Update error',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
-    // protected function handleImageUpload($productRequest, $product)
-    // {
-    //     // Generate a new image name
-    //     $imageName = time() . '.' . $productRequest->image->extension();
-    //     $path = $productRequest->image->storeAs('images', $imageName, 'laravel_api_image');
 
-    //     // Remove old image if it exists
-    //     $this->removeOldImage($product->image);
-
-    //     return $path;
-    // }
-
-
-    protected function removeOldImage($imagePath)
-    {
-        if (Storage::disk('laravel_api_image')->exists($imagePath)) {
-            Storage::disk('laravel_api_image')->delete($imagePath);
-        }
-    }
-
-
+    // ✅ DELETE
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
 
-        // Remove the image if exists before deleting the product
         if ($product->image) {
-            $this->removeOldImage($product->image);
+            Storage::disk('public')->delete($product->image);
         }
 
         $product->delete();
 
         return response()->json([
             'message' => 'Product deleted successfully!',
-        ], 200);
+        ]);
     }
 
+    // ✅ GET ONE
     public function show($id)
     {
         $product = Product::findOrFail($id);
 
+        $product->image_url = $product->image
+            ? asset('storage/' . $product->image)
+            : null;
+
         return response()->json([
             'product' => $product,
-        ], 200);
+        ]);
     }
 }

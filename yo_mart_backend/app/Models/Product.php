@@ -19,6 +19,7 @@ class Product extends Model
         'product_in',
         'product_out',
         'description',
+        'supplier_id',
         'discount',
         'create_by',
     ];
@@ -37,5 +38,10 @@ class Product extends Model
     public function attend_file()
     {
         return $this->hasMany(AttendFile::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 }

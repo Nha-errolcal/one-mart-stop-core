@@ -17,12 +17,10 @@ class OrderDetailController extends Controller
             $getAll = OrderDetail::all();
 
             return response()->json([
+                'code' => 200,
                 'getAll' => $getAll
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to Order detail: ' . $e->getMessage(), [
-                'exception' => $e
-            ]);
             return response()->json([
                 'message' => 'Failed to Order detail.'
             ], 500);
@@ -33,12 +31,19 @@ class OrderDetailController extends Controller
     public function show($id)
     {
         try {
-
-
             $getOne = DB::table('order_detail as od')
                 ->join('product as p', 'od.product_id', '=', 'p.id')
                 ->join('category as c', 'p.category_id', '=', 'c.id')
-                ->select('od.*', 'p.name as p_name', 'c.name as p_category_name')
+                ->select(
+                    'od.id',
+                    'od.qty',
+                    'od.price',
+                    'od.discount',
+                    'od.total',
+                    'p.name as p_name',
+                    'p.image as p_image',
+                    'c.name as p_category_name'
+                )
                 ->where('od.order_id', $id)
                 ->get();
 
@@ -48,20 +53,15 @@ class OrderDetailController extends Controller
                 ], 404);
             }
 
+            $order = DB::table('order')->where('id', $id)->first();
 
             return response()->json([
                 'message' => 'Order details retrieved successfully.',
+                'order' => $order,
                 'get_one' => $getOne,
-                'id' => $id
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Failed to retrieve order details for order ID ' . $id . ': ' . $e->getMessage(), [
-                'exception' => $e,
-                'order_id' => $id
-            ]);
-
-
             return response()->json([
                 'message' => 'Failed to retrieve order details.',
                 'error' => $e->getMessage()

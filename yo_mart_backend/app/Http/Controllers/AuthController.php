@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Throwable;
 use App\Facades\ResponseData as FacadesResponseData;
+use App\Models\Admin;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -88,7 +92,22 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'username' => $user->username,
-                'roles' => flattenRolesActions($user->roles)
+                'roles' => flattenRolesActions($user->roles),
+                'store_info' => $user->admin ? [
+                    'id' => $user->admin->id,
+                    'name' => $user->admin->name,
+                    'store_no' => $user->admin->store_no,
+                    'company_name' => $user->admin->company_name,
+                    'province' => $user->admin->province,
+                    'district' => $user->admin->district,
+                    'village' => $user->admin->village,
+                    'street' => $user->admin->street,
+                    'house_no' => $user->admin->house_no,
+                    'address_note' => $user->admin->address_note,
+                    'branch' => $user->admin->branch,
+                    'logo' => $user->admin->logo ?? null,
+                    'created_at' => $user->admin->created_at->toDateTimeString(),
+                ] : null
             ]
         ]);
     }
@@ -122,4 +141,209 @@ class AuthController extends Controller
             'data' => $user->load('roles')
         ]);
     }
+
+
+    /**
+     * admins
+     */
+    public function createAdmin(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:admins,email',
+                'phone' => 'nullable|string|max:20',
+                'province' => 'nullable|string|max:255',
+                'district' => 'nullable|string|max:255',
+                'village' => 'nullable|string|max:255',
+                'street' => 'nullable|string|max:255',
+                'house_no' => 'nullable|string|max:255',
+                'address_note' => 'nullable|string|max:255',
+                'branch' => 'nullable|string|max:255',
+                'company_name' => 'nullable|string|max:255',
+                'logo' => 'nullable|string|max:255',
+                'status' => 'nullable|integer',
+            ]);
+
+            $admin = DB::transaction(function () use ($validated) {
+                $validated['store_no'] = 'STORE-' . str_pad(Admin::max('id') + 1, 3, '0', STR_PAD_LEFT);
+                $validated['created_by'] = Auth::user()->id ?? null;
+                return Admin::create($validated);
+            });
+
+            return response()->json(
+                FacadesResponseData::success($admin, "Admin account created successfully.")
+            );
+
+        } catch (Throwable $e) {
+            return response()->json(
+                FacadesResponseData::error("Error", $e->getMessage()),
+                500
+            );
+        }
+    }
+
+    public function listStores()
+    {
+        try {
+            $stores = Admin::whereNotNull('store_no')->get();
+            return response()->json(
+                FacadesResponseData::success($stores, "Store list")
+            );
+        } catch (Throwable $e) {
+            return response()->json(
+                FacadesResponseData::error("Error", $e->getMessage()),
+                500
+            );
+        }
+    }
+
+    public function updateStoreAdmin(Request $request, $adminId)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:admins,email,' . $adminId,
+                'phone' => 'nullable|string|max:20',
+                'province' => 'nullable|string|max:255',
+                'district' => 'nullable|string|max:255',
+                'village' => 'nullable|string|max:255',
+                'street' => 'nullable|string|max:255',
+                'house_no' => 'nullable|string|max:255',
+                'address_note' => 'nullable|string|max:255',
+                'branch' => 'nullable|string|max:255',
+                'company_name' => 'nullable|string|max:255',
+                'logo' => 'nullable|string|max:255',
+                'status' => 'nullable|integer',
+            ]);
+
+            $admin = Admin::findOrFail($adminId);
+            $admin->update($validated);
+
+            return response()->json(
+                FacadesResponseData::success($admin, "Admin account updated successfully.")
+            );
+
+        } catch (Throwable $e) {
+            return response()->json(
+                FacadesResponseData::error("Error", $e->getMessage()),
+                500
+            );
+        }
+    }
+
+    public function deleteStoreAdmin($adminId)
+    {
+        try {
+            $admin = Admin::findOrFail($adminId);
+            if ($admin->users()->exists()) {
+                return response()->json(
+                    FacadesResponseData::error("Error", "Cannot delete admin with associated users."),
+                    400
+                );
+            }
+            $admin->delete();
+
+            return response()->json(
+                FacadesResponseData::success(null, "Admin account deleted successfully.")
+            );
+        } catch (Throwable $e) {
+            return response()->json(
+                FacadesResponseData::error("Error", $e->getMessage()),
+                500
+            );
+        }
+    }
+
+    public function listOneStore($adminId)
+    {
+        try {
+            $admin = Admin::findOrFail($adminId);
+            if ($admin->store_no === null) {
+                return response()->json(
+                    FacadesResponseData::error("Error", "Admin does not have store information."),
+                    400
+                );
+            }
+
+            return response()->json(
+                FacadesResponseData::success($admin, "Store information")
+            );
+        } catch (Throwable $e) {
+            return response()->json(
+                FacadesResponseData::error("Error", $e->getMessage()),
+                500
+            );
+        }
+    }
+
+
+    public function findAccount(Request $request)
+    {
+        try {
+            // Get search input
+            $txt_find_account = $request->input('query'); // 'query' is the input field name
+
+            if (!$txt_find_account) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Please provide a username or email to search.'
+                ], 400);
+            }
+
+            $user = User::where('username', $txt_find_account)
+                ->orWhere('email', $txt_find_account)
+                ->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $user
+            ]);
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+
+    }
+
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'new_password' => 'required|min:6|confirmed', // expects `new_password_confirmation`
+        ]);
+
+        try {
+            $user = User::find($request->user_id);
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Password changed successfully'
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // public function updateProfile
 }

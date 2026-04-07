@@ -16,10 +16,21 @@ class OrderController extends Controller
     public function index()
     {
         try {
+            $txt_search = request()->input('search');
+
             $order = DB::table(DB::raw('"order" as r'))
                 ->leftJoin('customer as cus', 'r.customer_id', '=', 'cus.id')
                 ->leftJoin('users as u', 'r.user_id', '=', 'u.id')
                 ->select('r.*', 'cus.name as customer_name', 'u.name as user_name')
+                ->when($txt_search, function ($query) use ($txt_search) {
+                    $query->where(function ($q) use ($txt_search) {
+                        $q->where('r.order_num', 'ilike', "%{$txt_search}%")
+                            ->orWhere('cus.name', 'ilike', "%{$txt_search}%")
+                            ->orWhere('u.name', 'ilike', "%{$txt_search}%")
+                            ->orWhere('r.payment_method', 'ilike', "%{$txt_search}%")
+                            ->orWhere('r.remark', 'ilike', "%{$txt_search}%");
+                    });
+                })
                 ->orderByDesc('r.created_at')
                 ->get();
 

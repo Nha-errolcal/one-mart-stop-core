@@ -5,13 +5,22 @@ use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $getAll = Category::all();
+        // $getAll = Category::all();
+        $txt_search = request()->input('search');
+        $getAll = Category::when($txt_search, function ($query, $txt_search) {
+            return $query->where('name', 'like', "%{$txt_search}%");
+        })
+            ->orderBy('id', 'desc')
+            ->get();
         return response()->json([
+            "code" => 200,
+            "message" => "Get all categories successfully!",
             'getAll' => $getAll
         ]);
     }
@@ -35,7 +44,7 @@ class CategoryController extends Controller
                 'data' => $create,
                 'message' => 'Category created successfully.'
             ]);
-        } catch (ModelNotFoundException $error) {
+        } catch (Throwable $error) {
             return response()->json([
                 'message' => 'Category not found.',
                 'error' => $error->getMessage()

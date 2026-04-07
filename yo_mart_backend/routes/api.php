@@ -14,6 +14,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 
 //no need permission for profile just need to be authenticated
@@ -113,10 +114,33 @@ Route::prefix('v2')->middleware(['validateToken', 'role:super-admin,super_admin,
     Route::get('files/{file_name}/view', [AttendFileController::class, 'index']);
     Route::get('files/{id}/view', [AttendFileController::class, 'view']);
     Route::delete('files/{id}', [AttendFileController::class, 'destroy']);
+
+    // admin routes
+    Route::prefix('admin')->group(function () {
+        Route::post('create/new/store', [AuthController::class, 'createAdmin']);
+        Route::get('list/stores', [AuthController::class, 'listStores']);
+        Route::get('list/one/stores/{adminId}', [AuthController::class, 'listOneStore']);
+        Route::put('update/store/{adminId}', [AuthController::class, 'updateStoreAdmin']);
+        Route::delete('delete/store/{adminId}', [AuthController::class, 'deleteStoreAdmin']);
+    });
+    Route::prefix('supplier')->group(function () {
+        Route::post('/create', [SupplierController::class, 'store']);
+        Route::get('/get_all', [SupplierController::class, 'index']);
+
+        Route::get('/get_one/{id}', [SupplierController::class, 'show']);
+        Route::put('/update/{id}', [SupplierController::class, 'update']);
+        Route::delete('/delete/{id}', [SupplierController::class, 'destroy']);
+    });
+
 });
 
 // public routes
 Route::prefix('v2')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
+    Route::prefix('account')->group(function () {
+        Route::get('/find/your/account', [AuthController::class, 'findAccount']);
+        Route::post('change/password', [AuthController::class, 'changePassword']);
+
+    });
 });

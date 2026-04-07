@@ -26,6 +26,7 @@ class ProductRequest extends FormRequest
             'category_id' => 'sometimes|required|exists:category,id',
             'qty' => 'sometimes|required|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'supplier_id' => 'nullable|exists:supplier,id',
             'product_in' => 'sometimes|required|integer|min:0',
             'product_out' => 'sometimes|required|integer|min:0',
             'description' => 'nullable|string',
