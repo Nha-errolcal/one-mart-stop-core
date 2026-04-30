@@ -1,50 +1,60 @@
 # 🛒 Mart POS System
 
-A modern **Point of Sale (POS)** សម័យទំនើប ដែលបានរចនាឡើងសម្រាប់គ្រប់គ្រងប្រតិបត្តិការលក់រាយឱ្យមានប្រសិទ្ធភាព។ ប្រព័ន្ធនេះជួយឱ្យអាជីវកម្មអាចគ្រប់គ្រងការលក់ ផលិតផល អតិថិជន និងប្រតិបត្តិការផ្សេងៗបានយ៉ាងងាយស្រួល ជាមួយនឹងផ្ទៃមុខប្រើប្រាស់ (UI) ដែលស្អាត និងងាយស្រួលប្រើ។
+A modern Point of Sale (POS) system designed to manage retail operations efficiently.
+
+---
+
+## 📁 Source Code
+
+### 🌐 Frontend Repository
+<img src="https://img.shields.io/badge/Frontend-React-blue?style=for-the-badge&logo=react" />
+
+<a href="https://github.com/Nha-errolcal/frontend_one_mart.git">
+Frontend One Mart
+</a>
+
+### ⚙️ Backend Repository
+<img src="https://img.shields.io/badge/Backend-Laravel-red?style=for-the-badge&logo=laravel" />
+
+<a href="https://github.com/Nha-errolcal/backend_one_mart">
+Backend One Mart
+</a>
 
 ---
 
 ## 📌 Project Information
 
-**📖 Topic:** Mart POS System
+<img src="https://img.shields.io/badge/Project-Mart%20POS-green?style=for-the-badge" />
 
-**👥 Team Members:**
+**Topic:** Mart POS System  
 
-- 👤 Tho Panha
-- 👤 By Vibol
-- 👤 Roth Angkeamanet
+**Team Members:**
+- <img src="https://img.shields.io/badge/User-Tho%20Panha-lightgrey" />
+- <img src="https://img.shields.io/badge/User-By%20Vibol-lightgrey" />
+- <img src="https://img.shields.io/badge/User-Roth%20Angkeamanet-lightgrey" />
 
 ---
 
 ## 🚀 Features
 
-- 📦 Product Management (Add, edit, delete products)
-- 🔐 Authentication (Login / Logout / create new user / find user + reset password, Role)
-- 📊 Dashboard Overview
-- 🖼️ Image Upload & Preview
-- 🦁 View Order Detail
-- 🖨️ print Invoice
+<img src="https://img.shields.io/badge/Module-Features-orange?style=for-the-badge" />
+
+- <img src="https://img.shields.io/badge/Product-Management-blue" /> Add / Edit / Delete products
+- <img src="https://img.shields.io/badge/Auth-System-red" /> Login / Logout / Role / Reset Password
+- <img src="https://img.shields.io/badge/Dashboard-Overview-green" />
+- <img src="https://img.shields.io/badge/Upload-Image-purple" />
+- <img src="https://img.shields.io/badge/Order-Detail-yellow" />
+- <img src="https://img.shields.io/badge/Invoice-Print-black" />
 
 ---
 
-## 🖥️ User Interface
+## 🖥️ UI Preview
 
-### 🔹 UI Preview
-
-#### Screen 1
+<img src="https://img.shields.io/badge/UI-Preview-blueviolet?style=for-the-badge" />
 
 ![UI 1](https://github.com/Nha-errolcal/one-mart-stop-core/blob/main/UI/1.png)
-
-#### Screen 2
-
 ![UI 2](https://github.com/Nha-errolcal/one-mart-stop-core/blob/main/UI/2.png)
-
-#### Screen 3
-
 ![UI 3](https://github.com/Nha-errolcal/one-mart-stop-core/blob/main/UI/3.png)
-
-#### Screen 4
-
 ![UI 4](https://github.com/Nha-errolcal/one-mart-stop-core/blob/main/UI/4.png)
 
 ---
@@ -52,51 +62,48 @@ A modern **Point of Sale (POS)** សម័យទំនើប ដែលបាន�
 ## 🛠️ Technologies Used
 
 ### Frontend
-
-- React.js
-- Ant Design
-- Tailwind CSS
+<img src="https://img.shields.io/badge/React.js-61DAFB?style=for-the-badge&logo=react" />
+<img src="https://img.shields.io/badge/Ant%20Design-0170FE?style=for-the-badge&logo=antdesign" />
+<img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwindcss" />
 
 ### Backend
-
-- Laravel 13
+<img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel" />
 
 ### Database
+<img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql" />
 
-- PostgreSQL
-
-### Other Tools
-
-- Axios
-- Git & GitHub
-- Postman (Testing API)
+### Tools
+<img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman" />
+<img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git" />
+<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github" />
 
 ---
 
 ## ⚙️ Installation
 
-### 1️⃣ Clone the repository
-
-git clone https://github.com/Nha-errolcal/one-mart-stop-core.git  
+```bash
+git clone https://github.com/Nha-errolcal/one-mart-stop-core.git
+```
+```bash
 cd one-mart-stop-core
-
-### 2️⃣ Install dependencies
-
 npm install
-
-### 3️⃣ Run the project
-
-npm run dev || bun run dev
-
+npm run dev
+```
+---
+```bash
+📂 Project Structure
+src/
+│── components/
+│── pages/
+│── layouts/
+│── store/
+│── uitis/
+│── assets/
+│── App.jsx
+│── main.jsx
+```
 ---
 
-## 📂 Project Structure (Frontend)
-
-src/  
-│── components/  
-│── pages/  
-│── layouts/  
-│── store/  
-│── assets/  
-│── App.jsx  
-│── main.jsx
+<p align="center">
+  ©️ 2026 <a href="https://teamyearng.com/kh">Team Yearng</a> - All Rights Reserved
+</p>
