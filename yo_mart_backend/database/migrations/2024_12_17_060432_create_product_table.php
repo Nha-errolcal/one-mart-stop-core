@@ -5,29 +5,35 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('product', function (Blueprint $table) {
             $table->id();
+
             $table->string('name');
-            $table->foreignId('category_id')->references('id')->on('category');
+
+            $table->foreignId('category_id')
+                ->constrained('category')
+                ->nullOnDelete();
+
             $table->integer('qty')->default(0);
+
             $table->string('image')->nullable();
-            $table->integer('product_in')->default(0);
-            $table->integer('product_out')->default(0);
+
+            $table->decimal('product_in', 10, 2)->default(0);
+            $table->decimal('product_out', 10, 2)->default(0);
+
             $table->text('description')->nullable();
-            $table->integer('discount')->default(0);
-            $table->string('create_by');
+
+            // % discount
+            $table->decimal('discount', 5, 2)->default(0);
+
+            $table->string('create_by')->nullable();
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('product');

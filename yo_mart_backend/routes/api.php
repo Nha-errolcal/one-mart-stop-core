@@ -23,7 +23,6 @@ Route::prefix('v2')->middleware('validateToken')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 Route::prefix('v2')->middleware(['validateToken', 'role:super_admin,cashier,user,admin,sale,staff'])->group(function () {
-    // Authenticated routes
     Route::post('/refresh', [AuthController::class, 'refresh']);
 
     // user routes
@@ -60,7 +59,6 @@ Route::prefix('v2')->middleware(['validateToken', 'role:super_admin,cashier,user
     Route::put('/customer/{customer}', [CustomerController::class, 'update']);
     Route::delete('/customer/{customer}', [CustomerController::class, 'destroy']);
 
-    // ----- Role and permissions -----
     Route::prefix('role')->group(function () {
         Route::get('/', [RoleController::class, 'index']);
         Route::post('/', [RoleController::class, 'store']);
@@ -68,7 +66,6 @@ Route::prefix('v2')->middleware(['validateToken', 'role:super_admin,cashier,user
         Route::put('/{role}', [RoleController::class, 'update']);
         Route::delete('/{role}', [RoleController::class, 'destroy']);
 
-        // permissions for role
         Route::post('/{roleId}/sync-permissions', [RoleController::class, 'syncPermissions']);
         Route::post('/{roleId}/permissions/add', [RoleController::class, 'addPermissions']);
         Route::put('/{roleId}/permissions/update', [RoleController::class, 'updatePermissions']);
@@ -117,7 +114,6 @@ Route::prefix('v2')->middleware(['validateToken', 'role:super_admin,cashier,user
     Route::get('files/{id}/view', [AttendFileController::class, 'view']);
     Route::delete('files/{id}', [AttendFileController::class, 'destroy']);
 
-    // admin routes
     Route::prefix('admin')->group(function () {
         Route::post('create/new/store', [AuthController::class, 'createAdmin']);
         Route::get('list/stores', [AuthController::class, 'listStores']);
@@ -136,7 +132,6 @@ Route::prefix('v2')->middleware(['validateToken', 'role:super_admin,cashier,user
 
 });
 
-// public routes
 Route::prefix('v2')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\PaymentMethod;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,9 +19,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             RolePermissionSeeder::class,
             UserRoleSeeder::class,
-            SuperAdminSeeder::class,
             RoleSeederAdmin::class,
-            UserRoleSeederAdmin::class
+            UserRoleSeederAdmin::class,
+            PaymentSeeder::class,
         ]);
     }
 }

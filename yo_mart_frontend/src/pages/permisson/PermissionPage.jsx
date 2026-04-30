@@ -85,11 +85,11 @@ const PermissionPage = () => {
           }}
         >
           <div
+            className="bg-blue-700"
             style={{
               width: 42,
               height: 42,
               borderRadius: 10,
-              background: "linear-gradient(135deg, #1677ff 0%, #0950b3 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -253,6 +253,7 @@ const PermissionPage = () => {
               លុបចោល
             </Button>
             <Button
+              className="bg-blue-700"
               type="primary"
               size="middle"
               onClick={handleRegisterToRole}
@@ -262,7 +263,6 @@ const PermissionPage = () => {
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                background: "linear-gradient(135deg, #1677ff, #0950b3)",
                 border: "none",
                 fontFamily: "Battambang, sans-serif",
               }}

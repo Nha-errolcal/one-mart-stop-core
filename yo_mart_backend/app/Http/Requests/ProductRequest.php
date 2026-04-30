@@ -27,10 +27,10 @@ class ProductRequest extends FormRequest
             'qty' => 'sometimes|required|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'supplier_id' => 'nullable|exists:supplier,id',
-            'product_in' => 'sometimes|required|integer|min:0',
-            'product_out' => 'sometimes|required|integer|min:0',
+            'product_in' => 'sometimes|required|numeric|min:0|max:999999.99',
+            'product_out' => 'sometimes|required|numeric|min:0|max:999999.99',
             'description' => 'nullable|string',
-            'discount' => 'nullable|integer|min:0|max:100',
+            'discount' => 'nullable|numeric|min:0|max:100', //%
         ];
     }
 }

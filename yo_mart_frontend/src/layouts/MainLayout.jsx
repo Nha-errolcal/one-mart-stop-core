@@ -13,11 +13,14 @@ import { Dropdown } from "antd";
 import {
   Bell,
   ChevronDown,
+  FolderCode,
   Info,
+  InfoIcon,
   LogOut,
   Menu as MenuIcon,
   User,
   UserCheck,
+  UserRoundKey,
 } from "lucide-react";
 import { MdSecurity } from "react-icons/md";
 import {
@@ -33,15 +36,35 @@ import userProfileImg from "../assets/image/user.jpg";
 import { getPermission } from "../util/Helper";
 
 const navItemsMenu = [
-  { key: "/", label: "ផ្ទាំងគ្រប់គ្រង", icon: <LayoutDashboard size={20} /> },
-  { key: "/customer", label: "អតិថិជន", icon: <Users size={18} /> },
+  {
+    key: "/",
+    label: "ផ្ទាំងគ្រប់គ្រង",
+    icon: <LayoutDashboard size={20} />,
+    permission: "dashboard.view",
+  },
+  {
+    key: "/customer",
+    label: "អតិថិជន",
+    icon: <Users size={18} />,
+    permission: "customer.view",
+  },
   {
     key: "/products",
     label: "ទំនិញ/ផលិតផល",
     icon: <Package size={20} />,
     children: [
-      { key: "/category", label: "ប្រភេទផលិតផល", icon: <Layers size={18} /> },
-      { key: "/products", label: "បញ្ជីផលិតផល", icon: <Package size={18} /> },
+      {
+        key: "/category",
+        label: "ប្រភេទផលិតផល",
+        icon: <Layers size={18} />,
+        permission: "category.view",
+      },
+      {
+        key: "/products",
+        label: "បញ្ជីផលិតផល",
+        icon: <Package size={18} />,
+        permission: "product.view",
+      },
     ],
   },
   {
@@ -49,11 +72,17 @@ const navItemsMenu = [
     label: "ការលក់",
     icon: <ShoppingCart size={20} />,
     children: [
-      { key: "/sale/pos", label: "លក់", icon: <Store size={18} /> },
+      {
+        key: "/sale/pos",
+        label: "លក់",
+        icon: <Store size={18} />,
+        permission: "sale.access",
+      },
       {
         key: "/sale/order",
         label: "ការបញ្ជាទិញ",
         icon: <ShoppingCart size={18} />,
+        permission: "order.view",
       },
     ],
   },
@@ -66,13 +95,20 @@ const navItemsMenu = [
         key: "/account/users",
         label: "បញ្ជីសមាជិក",
         icon: <Users size={18} />,
+        permission: "user.view",
       },
       {
         key: "/account/profile",
         label: "ប្រវត្តិគណនី",
         icon: <User size={18} />,
+        permission: "profile.view",
       },
-      { key: "/account/roles", label: "តួនាទី", icon: <UserCheck size={18} /> },
+      // {
+      //   key: "/account/roles",
+      //   label: "តួនាទី",
+      //   icon: <UserCheck size={18} />,
+      //   permission: "role.view",
+      // },
     ],
   },
   {
@@ -84,16 +120,35 @@ const navItemsMenu = [
         key: "/setting/permission",
         label: "សិទ្ធិ",
         icon: <MdSecurity size={18} />,
+        permission: "permission.view",
       },
       {
         key: "/setting/create/permission",
         label: "បង្កើតសិទ្ធិ",
-        icon: <MdSecurity size={18} />,
+        icon: <UserRoundKey size={18} />,
+        permission: "permission.create",
       },
     ],
   },
-  { key: "/about/system", label: "អំពីប្រព័ន្ធ", icon: <Info size={20} /> },
-  { key: "/about/team", label: "អំពីក្រុម", icon: <Users size={20} /> },
+  {
+    key: "/about",
+    label: "អំពីប្រព័ន្ធ",
+    icon: <Info />,
+    children: [
+      {
+        key: "/about/team",
+        label: "ក្រុមរបស់យើង​ | TeamYearng",
+        icon: <FolderCode size={18} />,
+        permission: "about.team",
+      },
+      {
+        key: "/about/system",
+        label: "ប្រព័ន្ធ",
+        icon: <InfoIcon size={18} />,
+        permission: "about.system",
+      },
+    ],
+  },
 ];
 
 const extractAllowedRoutes = (permission) => {
@@ -148,16 +203,27 @@ const SidebarMenu = ({ collapsed = false }) => {
 
   useEffect(() => {
     const next = {};
+
     items.forEach((group) => {
       if (group.children?.some((c) => c.key === pathname)) {
         next[group.key] = true;
       }
     });
+
     setOpenGroup((prev) => {
-      const hasChange = Object.keys(next).some((k) => !prev[k]);
-      return hasChange ? { ...prev, ...next } : prev;
+      let changed = false;
+      const updated = { ...prev };
+
+      Object.keys(next).forEach((k) => {
+        if (!updated[k]) {
+          updated[k] = true;
+          changed = true;
+        }
+      });
+
+      return changed ? updated : prev;
     });
-  }, [pathname, items]);
+  }, [pathname]);
 
   const toggleGroup = (key) =>
     setOpenGroup((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -417,7 +483,8 @@ const MainLayout = () => {
             </button>
             <div className="hidden md:block">
               <div className="text-base font-semibold text-[#EA4156]">
-                សូមស្វាគមន៍ 👋
+                សូមស្វាគមន៍មកកាន់ម៉ាតវ៉ាន់ស្តុប ខេអេច | Welcome to Mat Van Stop
+                KH
               </div>
               <div className="text-[11px] text-[#EA4156]">{currentTime}</div>
             </div>

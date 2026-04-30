@@ -39,7 +39,7 @@ const POSPageSale = () => {
   const calculateSummary = useOrderStore((s) => s.calculateSummary);
 
   const refInvoice = React.useRef(null);
-
+  const toNumber = (v) => parseFloat(v || 0);
   useEffect(() => {
     getAll();
     getCategory();
@@ -128,14 +128,21 @@ const POSPageSale = () => {
 
   const handleCheckOut = async () => {
     const order_detail = cartList.map((item) => {
-      let total = Number(item.cart_qty) * Number(item.product_out);
-      if (item.discount && Number(item.discount) !== 0)
-        total = total - (total * Number(item.discount)) / 100;
+      const qty = toNumber(item.cart_qty);
+      const price = toNumber(item.product_out);
+      const discount = toNumber(item.discount);
+
+      let total = qty * price;
+
+      if (discount > 0) {
+        total = total - (total * discount) / 100;
+      }
+
       return {
         product_id: Number(item.id),
-        qty: Number(item.cart_qty),
-        price: Number(item.product_out),
-        discount: Number(item.discount),
+        qty,
+        price,
+        discount,
         total,
       };
     });

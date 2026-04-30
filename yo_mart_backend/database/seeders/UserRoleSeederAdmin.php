@@ -15,8 +15,6 @@ class UserRoleSeederAdmin extends Seeder
      */
     public function run(): void
     {
-        //
-        // 1. Create Role (or get existing)
         $superAdminRole = Role::firstOrCreate(
             ['code' => 'super_admin'],
             [
@@ -25,7 +23,6 @@ class UserRoleSeederAdmin extends Seeder
             ]
         );
 
-        // 2. Create User (or get existing)
         $user = User::firstOrCreate(
             ['email' => 'super_admin888@gmail.com'],
             [

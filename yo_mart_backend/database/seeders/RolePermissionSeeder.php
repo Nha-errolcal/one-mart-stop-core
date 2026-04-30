@@ -4,17 +4,13 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $role = Role::where('code', 'Super Admin')->first();
+        $role = Role::where('code', 'super_admin')->first();
 
         if (!$role)
             return;
