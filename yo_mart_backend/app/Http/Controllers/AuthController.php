@@ -133,13 +133,26 @@ class AuthController extends Controller
             'role_ids.*' => 'integer|exists:role,id',
         ]);
 
-        $user = User::findOrFail($userId);
-        $user->roles()->sync($data['role_ids']);
+        $user = User::find($userId);
 
-        return response()->json([
-            'message' => 'Roles synced successfully',
-            'data' => $user->load('roles')
-        ]);
+        if (!$user) {
+            return response()->json(
+                FacadesResponseData::error(
+                    'User not found',
+                    "User not found",
+                    404
+                )
+            );
+        }
+
+        $user->roles()->syncWithoutDetaching($data['role_ids']);
+
+        return response()->json(
+            FacadesResponseData::created(
+                $user->load('roles'),
+                'Roles synced successfully'
+            )
+        );
     }
 
 
@@ -279,6 +292,43 @@ class AuthController extends Controller
 
 
     public function findAccount(Request $request)
+    {
+        try {
+            $query = $request->input('query');
+
+            if (!$query) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Please provide a username or email to search.'
+                ], 400);
+            }
+
+            $users = User::where('username', 'like', "%$query%")
+                ->orWhere('email', 'like', "%$query%")
+                ->get();
+
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $users
+            ]);
+
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function findAccountForgetAccount(Request $request)
     {
         try {
             // Get search input

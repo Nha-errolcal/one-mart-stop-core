@@ -7,6 +7,8 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Facades\ResponseData as FacadesResponseData;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
@@ -171,31 +173,40 @@ class RoleController extends Controller
         $role = Role::findOrFail($roleId);
 
         foreach ($data['permissions'] as $perm) {
-            $existing = $role->permissions()
+
+            $exists = DB::table('permission_role')
+                ->where('role_id', $roleId)
                 ->where('permission_id', $perm['permission_id'])
-                ->wherePivot('action', $perm['action'])
+                ->where('action', $perm['action'])
                 ->first();
 
-            if ($existing) {
-                $role->permissions()->updateExistingPivot($perm['permission_id'], [
-                    'allowed' => $perm['allowed'],
-                    'action' => $perm['action'],
-                    'updated_at' => now(),
-                ]);
+            if ($exists) {
+                DB::table('permission_role')
+                    ->where('role_id', $roleId)
+                    ->where('permission_id', $perm['permission_id'])
+                    ->where('action', $perm['action'])
+                    ->update([
+                        'allowed' => $perm['allowed'],
+                        'updated_at' => now(),
+                    ]);
             } else {
-                $role->permissions()->attach($perm['permission_id'], [
-                    'allowed' => $perm['allowed'],
+                DB::table('permission_role')->insert([
+                    'role_id' => $roleId,
+                    'permission_id' => $perm['permission_id'],
                     'action' => $perm['action'],
+                    'allowed' => $perm['allowed'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
             }
         }
 
-        return response()->json([
-            'message' => 'Permissions added/updated successfully (add-only)',
-            'data' => $role->load('permissions')
-        ]);
+        return response()->json(
+            FacadesResponseData::created(
+                $role->load('permissions'),
+                "Permissions added successfully"
+            )
+        );
     }
 
 

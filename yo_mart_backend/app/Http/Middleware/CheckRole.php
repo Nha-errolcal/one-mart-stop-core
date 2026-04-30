@@ -33,3 +33,39 @@ class CheckRole
         return $next($request);
     }
 }
+
+
+// <?php
+
+// namespace App\Http\Middleware;
+
+// use Closure;
+// use Illuminate\Http\Request;
+// use Symfony\Component\HttpFoundation\Response;
+
+// class CheckRole
+// {
+//     public function handle(Request $request, Closure $next, ...$roles): Response
+//     {
+//         $user = auth()->user();
+
+//         if (!$user) {
+//             return response()->json(['message' => 'Unauthorized'], 401);
+//         }
+
+//         // 🔥 FIX: use 'code' not 'name'
+//         $userRoles = $user->roles->pluck('code')->toArray();
+
+//         // super admin bypass
+//         if (in_array('super_admin', $userRoles)) {
+//             return $next($request);
+//         }
+
+//         // check roles
+//         if (!array_intersect($roles, $userRoles)) {
+//             return response()->json(['message' => 'Forbidden'], 403);
+//         }
+
+//         return $next($request);
+//     }
+// }

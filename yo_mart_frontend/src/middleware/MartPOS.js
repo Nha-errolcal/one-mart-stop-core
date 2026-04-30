@@ -1,36 +1,33 @@
-import { getProfile } from "../store/profile";
+import { getPermission } from "../util/Helper";
 
 export class MartPOS {
+  #permissions = [];
+
   constructor() {
-    const profile = getProfile();
-    this.permissions = profile?.roles?.[0]?.permissions || [];
+    const raw = getPermission();
+    if (!raw) return;
+
+    this.#permissions = Object.values(raw).flatMap(
+      (entry) => entry?.action ?? [],
+    );
   }
 
-  /**
-   * Check if a specific action is allowed for a module
-   * @param {string} module - e.g., "customer", "employees"
-   * @param {string} code - e.g., "customer.view", "employee.create"
-   * @returns {boolean}
-   */
-  can(module, code) {
-    if (!this.permissions.length) return false;
+  // Check by permission code, e.g. can("product.view")
+  can = (code) => {
+    return this.#permissions.some((p) => p.code === code && p.allowed === true);
+  };
 
-    const modulePermissions = this.permissions.filter((p) => p.name === module);
-    if (!modulePermissions.length) return false;
+  // Check by web route, e.g. canRoute("/products")
+  canRoute = (route) => {
+    return this.#permissions.some(
+      (p) => p.web_route === route && p.allowed === true,
+    );
+  };
 
-    // Check if any of the module permissions match the code and allowed = true
-    return modulePermissions.some((p) => p.code === code && p.allowed);
-  }
-
-  // Check if the user has full access (super admin)
-  isSuperAdmin() {
-    const roleName = getProfile()?.roles?.[0]?.name?.toLowerCase() || "";
-    return roleName === "super admin";
-  }
+  // Get all allowed permission codes
+  allowedCodes = () => {
+    return this.#permissions
+      .filter((p) => p.allowed === true)
+      .map((p) => p.code);
+  };
 }
-
-// Usage example
-// const martPOS = new MartPOS();
-
-// console.log(martPOS.can("customer", "customer.view")); // true / false
-// console.log(martPOS.can("employees", "employee.create")); // true / false

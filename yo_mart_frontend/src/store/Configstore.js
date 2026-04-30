@@ -73,10 +73,12 @@ export const request = (url = "", method = "get", data = {}) => {
   const access_token = getAcccessToken();
 
   const headers = {
-    "Content-Type":
-      data instanceof FormData ? "multipart/form-data" : "application/json",
     Authorization: `Bearer ${access_token}`,
   };
+
+  if (!(data instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
 
   let queryString = "";
 
@@ -109,5 +111,4 @@ export const request = (url = "", method = "get", data = {}) => {
     })
     .catch((err) => handleError(err, url));
 };
-
 export const formatDate = (value) => dayjs(value).format("YYYY-MMM-DD");

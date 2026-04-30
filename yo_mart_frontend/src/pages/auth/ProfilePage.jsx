@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useAuth } from "../../store/authStore";
+import useAuth from "../../store/authStore";
 import { Button, Tag, Tooltip } from "antd";
 import {
   UserOutlined,
@@ -16,6 +16,8 @@ import {
 } from "@ant-design/icons";
 import { Edit2Icon } from "lucide-react";
 import { Link } from "react-router";
+import LoadingHelper from "../../components/LoadingHelper";
+import { Flex, Spin } from "antd";
 
 /* ── Brand tokens ── */
 const B = {
@@ -187,7 +189,7 @@ const ProfilePage = () => {
         }}
       >
         <div style={{ textAlign: "center" }}>
-          <div
+          {/* <div
             style={{
               width: 48,
               height: 48,
@@ -198,8 +200,15 @@ const ProfilePage = () => {
               margin: "0 auto 12px",
             }}
           />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          Loading profile...
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style> */}
+          <Flex
+            justify="center"
+            align="center"
+            style={{ width: "100%", padding: "24px" }}
+          >
+            <Spin size="default" />
+          </Flex>
+          {/* <LoadingHelper  /> */}
         </div>
       </div>
     );

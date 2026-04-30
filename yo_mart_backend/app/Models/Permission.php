@@ -8,7 +8,7 @@ class Permission extends Model
     protected $fillable = [
         'name',
         'code',
-        'web_route',
+        'route_web',
     ];
 
     public function roles()

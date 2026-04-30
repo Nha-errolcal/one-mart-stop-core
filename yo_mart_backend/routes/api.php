@@ -22,7 +22,7 @@ Route::prefix('v2')->middleware('validateToken')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
-Route::prefix('v2')->middleware(['validateToken', 'role:super-admin,super_admin,cashier'])->group(function () {
+Route::prefix('v2')->middleware(['validateToken', 'role:super_admin,cashier,user,admin,sale,staff'])->group(function () {
     // Authenticated routes
     Route::post('/refresh', [AuthController::class, 'refresh']);
 
@@ -32,6 +32,8 @@ Route::prefix('v2')->middleware(['validateToken', 'role:super-admin,super_admin,
         Route::get('/view_only/{id}', [UserController::class, 'viewOnly']);
         Route::put('/update_user/{id}', [UserController::class, 'updateUser']);
         Route::delete('/delete_user/{id}', [UserController::class, 'deleteUser']);
+        Route::get('/find/all_user', [AuthController::class, 'findAccount']);
+
     });
 
     Route::get('/employees', [EmployeesController::class, 'index']);
@@ -139,7 +141,7 @@ Route::prefix('v2')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::prefix('account')->group(function () {
-        Route::get('/find/your/account', [AuthController::class, 'findAccount']);
+        Route::get('/find/your/account', [AuthController::class, 'findAccountForgetAccount']);
         Route::post('change/password', [AuthController::class, 'changePassword']);
 
     });

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../store/authStore";
+import useAuth from "../../store/authStore";
 import { Form, Input, Button, message } from "antd";
 import {
   UserOutlined,

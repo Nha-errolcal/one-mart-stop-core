@@ -1,33 +1,68 @@
-export const filterNavItems = (navItems, permissions, isSuperAdmin = false) => {
-  if (!permissions || typeof permissions !== "object") return [];
+export function normalize(path) {
+  if (!path) return "";
+  return path.replace(/\/+$/, "");
+}
 
-  if (isSuperAdmin) return navItems;
+/**
+ * Build allowed routes from backend permissions
+ */
+export function getAllowedPermissions(user) {
+  const allowed = new Set();
 
-  const allowedRoutes = Object.keys(permissions).filter((key) => {
-    return permissions[key].action.some((a) => a.allowed);
-  });
+  const roles = user?.roles ?? [];
 
-  const filterItem = (items) =>
-    items
-      .map((item) => {
-        if (item.children) {
-          const filteredChildren = filterItem(item.children);
-          if (filteredChildren.length === 0) return null;
-          return { ...item, children: filteredChildren };
+  for (const role of roles) {
+    const permissions = role?.permissions ?? {};
+
+    for (const group of Object.values(permissions)) {
+      const actions = group?.action ?? [];
+
+      for (const action of actions) {
+        if (action.allowed && action.web_route) {
+          allowed.add(action.web_route.trim());
         }
+      }
+    }
+  }
 
-        if (allowedRoutes.includes(item.key)) return item;
-        return null;
-      })
-      .filter(Boolean);
+  return allowed;
+}
 
-  return filterItem(navItems);
-};
+/**
+ * Filter sidebar items based on permissions
+ */
+export function filterNavItems(items, allowedRoutes) {
+  const ALWAYS_VISIBLE = ["/", "/about/system", "/about/team"];
 
-// Check permission for single action
-export const canAccess = (permissions, key, code, isSuperAdmin = false) => {
-  if (isSuperAdmin) return true;
-  if (!permissions || typeof permissions !== "object") return false;
-  const actions = permissions[key]?.action || [];
-  return actions.some((a) => a.code === code && a.allowed);
-};
+  return items.reduce((acc, item) => {
+    const key = item.key?.trim();
+
+    // always visible
+    if (ALWAYS_VISIBLE.includes(key)) {
+      acc.push(item);
+      return acc;
+    }
+
+    // group
+    if (item.children) {
+      // const children = item.children.filter((c) => allowedRoutes.has(c.key));
+      // console.log(children);
+      const children = item.children.filter((c) => {
+        // console.log(c);
+        allowedRoutes.has(c.key);
+      });
+      if (children.length > 0) {
+        acc.push({ ...item, children });
+      }
+
+      return acc;
+    }
+
+    // normal route
+    if (allowedRoutes.has(key)) {
+      acc.push(item);
+    }
+
+    return acc;
+  }, []);
+}

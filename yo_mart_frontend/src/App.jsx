@@ -18,6 +18,8 @@ import AboutTeam from "./pages/about/AboutTeam";
 import ProfilePage from "./pages/auth/ProfilePage";
 import EditProfilePage from "./pages/auth/EditProfilePage";
 import FindAccount from "./pages/auth/FindAccount";
+import PermissionPage from "./pages/permisson/PermissionPage";
+import CreatePermissionPage from "./pages/permisson/CreatePermissionPage";
 function App() {
   return (
     <BrowserRouter>
@@ -33,6 +35,14 @@ function App() {
           <Route path="/account/profile" element={<ProfilePage />} />
           <Route path="/account/profile/edit" element={<EditProfilePage />} />
           <Route path="/account/roles" element={<UserPage />} />
+          <Route
+            path="/setting/create/permission"
+            element={<PermissionPage />}
+          />
+          <Route
+            path="/setting/permission"
+            element={<CreatePermissionPage />}
+          />
           <Route path="/about/system" element={<AboutSystem />} />
           <Route path="/about/team" element={<AboutTeam />} />
           <Route path="*" element={<h1>404-Route Not Found!</h1>} />

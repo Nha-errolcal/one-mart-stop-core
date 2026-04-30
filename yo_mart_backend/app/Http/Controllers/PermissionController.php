@@ -5,14 +5,26 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PermissionRequest;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Log;
-
+use App\Facades\ResponseData as FacadesResponseData;
+use Illuminate\Http\Request;
 class PermissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json([
-            'data' => Permission::all()
-        ], 200);
+        $txtSearch = $request->input("query");
+
+        $data = Permission::query()
+            ->when($txtSearch, function ($q) use ($txtSearch) {
+                $q->where("name", "like", "%{$txtSearch}%")
+                    ->orWhere("code", "like", "%{$txtSearch}%")
+                    ->orWhere("route_web", "like", "%{$txtSearch}%");
+            })
+            ->latest() // newest first (created_at DESC)
+            ->get();
+
+        return response()->json(
+            FacadesResponseData::success($data, "Get all permission success")
+        );
     }
 
     public function store(PermissionRequest $request)
@@ -20,10 +32,9 @@ class PermissionController extends Controller
         try {
             $permission = Permission::create($request->validated());
 
-            return response()->json([
-                'message' => 'Permission created successfully.',
-                'data' => $permission
-            ], 201);
+            return response()->json(
+                FacadesResponseData::created($permission, 'Permission created successfully')
+            );
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to create permission.'], 500);
         }

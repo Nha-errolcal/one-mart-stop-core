@@ -12,7 +12,8 @@ import {
   FaChartBar,
   FaTrophy,
 } from "react-icons/fa";
-
+import LoadingHelper from "../../components/LoadingHelper";
+import { getPermission } from "../../util/Helper";
 const Dashboard = () => {
   const { monthlySales, getMonthlySales, getTodaySales, todaySale } =
     useDashboard();
@@ -20,7 +21,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   const user = getProfile();
-
+  const permission = getPermission();
   useEffect(() => {
     const load = async () => {
       try {
@@ -49,7 +50,7 @@ const Dashboard = () => {
   }));
 
   const monthlyData = (monthlySales || []).map((item) => ({
-    label: `Month ${item.month}`,
+    label: `ខែ ${item.month}`,
     value: Number(item.total_sales),
   }));
 
@@ -63,7 +64,7 @@ const Dashboard = () => {
     return (
       <div className="p-8 bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-gray-500 text-lg animate-pulse">
-          កំពុងផ្ទុកទិន្នន័យ...
+          <LoadingHelper loading={loading} />
         </div>
       </div>
     );

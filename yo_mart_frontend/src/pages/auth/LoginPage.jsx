@@ -5,6 +5,7 @@ import { UserOutlined, LockOutlined, ShopOutlined } from "@ant-design/icons";
 import { request } from "../../store/Configstore";
 import { setAcccessToken, setProfile } from "../../store/profile";
 import { Link } from "react-router";
+import { setPermission } from "../../util/Helper";
 
 /* ── Brand tokens ── */
 const B = {
@@ -32,6 +33,7 @@ const LoginPage = () => {
         const profileRes = await request("profile", "get");
         if (profileRes && profileRes.success) {
           setProfile(JSON.stringify(profileRes.user));
+          setPermission(profileRes.user.roles[0].permissions);
         }
         navigate("/");
       } else {

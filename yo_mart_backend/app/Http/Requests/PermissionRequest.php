@@ -24,6 +24,7 @@ class PermissionRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
+            'route_web' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:255', $uniqueCode],
         ];
     }
