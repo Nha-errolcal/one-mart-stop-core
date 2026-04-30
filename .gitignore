@@ -1,4 +1,3 @@
-.vscode
-
-yo_mart_frontend
-yo_mart_backend
+yo_mart_frontend/
+yo_mart_backend/
+.vscode/
